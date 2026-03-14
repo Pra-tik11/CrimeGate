@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crime Gate – My Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #0a0f28, #1a1a2e);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .dash-navbar {
+      background: linear-gradient(135deg, #0f3460, #e94560);
+      padding: 12px 20px;
+    }
+    .navbar-brand { font-size: 20px; font-weight: 800; color: white !important; }
+    .navbar-brand span { color: #ffe0e6; }
+    .navbar-toggler { border-color: rgba(255,255,255,0.4); }
+    .navbar-toggler:focus { box-shadow: none; }
+    .navbar-toggler-icon { filter: invert(1); }
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        background: #0f3460; border-radius: 12px;
+        padding: 14px; margin-top: 10px;
+      }
+    }
+
+    /* ── Profile Hero Card ── */
+    .profile-hero {
+      background: linear-gradient(135deg, #0f3460, #1e2d5a);
+      border-radius: 20px;
+      border: 1px solid #2d3a5a;
+      padding: 36px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(233,69,96,0.08);
+    }
+    .profile-hero::after {
+      content: '';
+      position: absolute; bottom: -60px; left: -30px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(15,52,96,0.3);
+    }
+
+    /* ── Avatar ── */
+    .avatar-wrapper {
+      position: relative; display: inline-block;
+    }
+    .avatar-circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; color: white; font-weight: 800;
+      border: 4px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 25px rgba(233,69,96,0.4);
+      flex-shrink: 0;
+    }
+    .avatar-online {
+      position: absolute; bottom: 4px; right: 4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #22c55e;
+      border: 2px solid #0f3460;
+    }
+
+    /* ── Stats Row ── */
+    .stat-pill {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 14px 20px;
+      text-align: center; color: white;
+      transition: 0.3s;
+    }
+    .stat-pill:hover { background: rgba(233,69,96,0.15); border-color: #e94560; }
+    .stat-pill h4 { font-size: 28px; font-weight: 800; color: #e94560; margin: 0; }
+    .stat-pill p  { font-size: 12px; color: #93c5fd; margin: 4px 0 0; font-weight: 600; }
+
+    /* ── Section Cards ── */
+    .section-card {
+      background: #161b2e; border-radius: 16px;
+      border: 1px solid #2d3a5a; overflow: hidden;
+    }
+    .section-card-header {
+      padding: 18px 24px; border-bottom: 1px solid #2d3a5a;
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .section-card-header h6 {
+      color: white; font-weight: 700; margin: 0;
+      font-size: 15px;
+    }
+    .section-card-body { padding: 24px; }
+
+    /* ── Form Fields ── */
+    .form-label-cg {
+      color: #8899aa; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      font-weight: 600; margin-bottom: 6px;
+    }
+    .form-control-cg {
+      background: #0d1117 !important;
+      border: 1px solid #2d3a5a !important;
+      color: white !important; border-radius: 10px !important;
+      padding: 11px 16px !important; font-size: 14px !important;
+      transition: 0.3s !important;
+    }
+    .form-control-cg::placeholder { color: #3a4a6a !important; }
+    .form-control-cg:focus {
+      border-color: #e94560 !important;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.15) !important;
+    }
+    .form-control-cg:disabled {
+      background: #0a0d1a !important;
+      color: #556688 !important;
+      cursor: not-allowed;
+    }
+
+    /* ── Buttons ── */
+    .btn-save {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border: none; color: white; padding: 11px 28px;
+      border-radius: 10px; font-weight: 700; font-size: 14px;
+      transition: 0.3s; cursor: pointer;
+    }
+    .btn-save:hover {
+      opacity: 0.9; transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(233,69,96,0.4);
+      color: white;
+    }
+    .btn-edit-toggle {
+      background: #1e2640; border: 1px solid #2d3a5a;
+      color: #93c5fd; padding: 7px 16px;
+      border-radius: 8px; font-size: 13px;
+      font-weight: 600; transition: 0.3s; cursor: pointer;
+    }
+    .btn-edit-toggle:hover { background: #2d3a5a; color: white; }
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid #ef4444; color: #ef4444;
+      padding: 11px 24px; border-radius: 10px;
+      font-weight: 600; font-size: 14px;
+      transition: 0.3s; cursor: pointer;
+    }
+    .btn-danger-outline:hover {
+      background: rgba(239,68,68,0.1);
+    }
+
+    /* ── Info Rows (read-only view) ── */
+    .info-display-row {
+      padding: 14px 0;
+      border-bottom: 1px solid #1e2640;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .info-display-row:last-child { border-bottom: none; }
+    .info-display-label {
+      font-size: 12px; color: #556688;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      font-weight: 600; min-width: 140px;
+    }
+    .info-display-value {
+      font-size: 14px; color: white; font-weight: 600;
+      text-align: right;
+    }
+
+    /* ── Aadhar Masked ── */
+    .aadhar-display {
+      font-family: monospace; letter-spacing: 3px;
+      color: white; font-size: 14px;
+    }
+
+    /* ── Verified Badge ── */
+    .badge-verified {
+      background: rgba(34,197,94,0.15);
+      border: 1px solid #22c55e;
+      color: #86efac; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+    .badge-unverified {
+      background: rgba(245,158,11,0.15);
+      border: 1px solid #f59e0b;
+      color: #fcd34d; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+    }
+
+    /* ── Change Password ── */
+    .pwd-toggle {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: #556688; cursor: pointer;
+      font-size: 14px; padding: 0;
+    }
+    .pwd-toggle:hover { color: white; }
+    .input-group-cg { position: relative; }
+
+    /* ── Alert Toast ── */
+    .toast-cg {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #161b2e; border: 1px solid #2d3a5a;
+      border-radius: 14px; padding: 16px 20px;
+      color: white; font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 9999; min-width: 280px;
+      display: flex; align-items: center; gap: 12px;
+      transform: translateY(80px); opacity: 0;
+      transition: 0.4s ease;
+    }
+    .toast-cg.show { transform: translateY(0); opacity: 1; }
+    .toast-icon { font-size: 20px; }
+    .toast-success { border-left: 4px solid #22c55e; }
+    .toast-error   { border-left: 4px solid #ef4444; }
+
+    /* ── Loading Skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, #1e2640 25%, #2d3a5a 50%, #1e2640 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px; height: 20px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .profile-hero   { padding: 24px 18px; }
+      .avatar-circle  { width: 75px; height: 75px; font-size: 28px; }
+      .section-card-body { padding: 16px; }
+      .stat-pill h4   { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar navbar-expand-lg dash-navbar">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="/">
+      <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+    </a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto ms-3">
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/file-complaint.html">
+            <i class="fas fa-plus-circle me-1"></i>File Complaint
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/complaint-history.html">
+            <i class="fas fa-list me-1"></i>My Complaints
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/track-status.html">
+            <i class="fas fa-search me-1"></i>Track FIR
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white fw-bold" href="/user/profile.html"
+             style="border-bottom: 2px solid white;">
+            <i class="fas fa-user me-1"></i>Profile
+          </a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+        <span class="text-white fw-bold" id="welcomeUser"></span>
+        <button class="btn btn-sm btn-outline-light" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+
+  <!-- Page Title -->
+  <div class="mb-4">
+    <h4 class="fw-bold mb-1" style="color:white;">
+      <i class="fas fa-user-circle me-2" style="color:#e94560;"></i>My Profile
+    </h4>
+    <p style="color:#8899aa;" class="mb-0">Manage your personal information and account settings</p>
+  </div>
+
+  <!-- ── Profile Hero ── -->
+  <div class="profile-hero mb-4" id="profileHero">
+    <!-- Skeleton loading -->
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+      <div class="skeleton" style="width:100px;height:100px;border-radius:50%;"></div>
+      <div style="flex:1; min-width:200px;">
+        <div class="skeleton mb-2" style="width:200px;height:28px;"></div>
+        <div class="skeleton mb-2" style="width:160px;height:16px;"></div>
+        <div class="skeleton" style="width:120px;height:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-7">
+
+      <!-- Personal Information -->
+      <div class="section-card mb-4">
+        <div class="section-card-header">
+          <h6><i class="fas fa-id-card me-2" style="color:#e94560;"></i>Personal Information</h6>
+          <button class="btn-edit-toggle" id="editToggleBtn" onclick="toggleEdit()">
+            <i class="fas fa-pencil me-1"></i>Edit
+          </button>
+        </div>
+        <div class="section-card-body" id="profileInfoBody">
+          <!-- Filled by JS -->
+          <div class="skeleton mb-3" style="height:20px;"></div>
+          <div class="skeleton mb-3" style="height:20px;"></div>
+          <div class="skeleton mb-3" style="height:20px;"></div>
+          <div class="skeleton" style="height:20px;"></div>
+        </div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h6><i class="fas fa-lock me-2" style="color:#e94560;"></i>Change Password</h6>
+        </div>
+        <div class="section-card-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label-cg">Current Password</label>
+              <div class="input-group-cg">
+                <input type="password" id="currentPwd" class="form-control form-control-cg"
+                       placeholder="Enter current password"/>
+                <button class="pwd-toggle" type="button" onclick="togglePwd('currentPwd',this)">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label-cg">New Password</label>
+              <div class="input-group-cg">
+                <input type="password" id="newPwd" class="form-control form-control-cg"
+                       placeholder="Min 6 characters"/>
+                <button class="pwd-toggle" type="button" onclick="togglePwd('newPwd',this)">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label-cg">Confirm New Password</label>
+              <div class="input-group-cg">
+                <input type="password" id="confirmPwd" class="form-control form-control-cg"
+                       placeholder="Repeat new password"/>
+                <button class="pwd-toggle" type="button" onclick="togglePwd('confirmPwd',this)">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Password Strength Bar -->
+            <div class="col-12">
+              <div id="pwdStrengthBar" class="d-none">
+                <div style="font-size:12px; color:#8899aa; margin-bottom:5px;">
+                  Password Strength: <span id="pwdStrengthLabel" style="font-weight:700;"></span>
+                </div>
+                <div style="background:#1e2640; border-radius:10px; height:6px;">
+                  <div id="pwdStrengthFill" style="height:6px; border-radius:10px; transition:0.3s;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <button class="btn-save" onclick="changePassword()">
+                <i class="fas fa-key me-2"></i>Update Password
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-5">
+
+      <!-- Complaint Stats -->
+      <div class="section-card mb-4">
+        <div class="section-card-header">
+          <h6><i class="fas fa-chart-bar me-2" style="color:#e94560;"></i>Complaint Summary</h6>
+        </div>
+        <div class="section-card-body">
+          <div class="row g-3" id="statsContainer">
+            <div class="col-6"><div class="skeleton" style="height:80px;border-radius:12px;"></div></div>
+            <div class="col-6"><div class="skeleton" style="height:80px;border-radius:12px;"></div></div>
+            <div class="col-6"><div class="skeleton" style="height:80px;border-radius:12px;"></div></div>
+            <div class="col-6"><div class="skeleton" style="height:80px;border-radius:12px;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Info -->
+      <div class="section-card mb-4">
+        <div class="section-card-header">
+          <h6><i class="fas fa-shield-alt me-2" style="color:#e94560;"></i>Account Details</h6>
+        </div>
+        <div class="section-card-body" id="accountInfoBody">
+          <div class="skeleton mb-3" style="height:18px;"></div>
+          <div class="skeleton mb-3" style="height:18px;"></div>
+          <div class="skeleton" style="height:18px;"></div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="section-card" style="border-color: rgba(239,68,68,0.3);">
+        <div class="section-card-header" style="border-bottom-color: rgba(239,68,68,0.2);">
+          <h6 style="color:#ef4444;">
+            <i class="fas fa-triangle-exclamation me-2"></i>Danger Zone
+          </h6>
+        </div>
+        <div class="section-card-body">
+          <p style="color:#7a8aaa; font-size:13px; margin-bottom:16px;">
+            Once you delete your account, all your complaints and data will be permanently removed.
+            This action cannot be undone.
+          </p>
+          <button class="btn-danger-outline w-100" onclick="confirmDelete()">
+            <i class="fas fa-trash-alt me-2"></i>Delete My Account
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast-cg" id="toastMsg">
+  <span class="toast-icon" id="toastIcon"></span>
+  <span id="toastText"></span>
+</div>
+
+<!-- ── Delete Confirm Modal ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:#161b2e; border:1px solid #2d3a5a; border-radius:16px;">
+      <div class="modal-header" style="border-bottom:1px solid #2d3a5a;">
+        <h5 class="modal-title" style="color:#ef4444; font-weight:700;">
+          <i class="fas fa-triangle-exclamation me-2"></i>Delete Account
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                style="filter:invert(1);"></button>
+      </div>
+      <div class="modal-body" style="color:#ccd6f6; padding:24px;">
+        <p style="font-size:15px;">Are you absolutely sure you want to delete your account?</p>
+        <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3);
+                    border-radius:10px; padding:14px; margin-top:12px;">
+          <p style="color:#fca5a5; font-size:13px; margin:0;">
+            <i class="fas fa-circle-exclamation me-1"></i>
+            All your complaints, FIRs, and personal data will be <strong>permanently deleted</strong>.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top:1px solid #2d3a5a;">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="deleteAccount()">
+          <i class="fas fa-trash-alt me-1"></i>Yes, Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  let   userData = {};
+  let   isEditing = false;
+
+  if (!token) window.location.href = '/user/login.html';
+
+  // ── Load Profile ─────────────────────────────
+  async function loadProfile() {
+    try {
+      const [profileRes, complaintsRes] = await Promise.all([
+        fetch('/api/users/profile', { headers: { 'Authorization': 'Bearer ' + token } }),
+        fetch('/api/complaints/my',  { headers: { 'Authorization': 'Bearer ' + token } })
+      ]);
+
+      if (profileRes.status === 401) { logout(); return; }
+
+      userData = await profileRes.json();
+      const complaints = complaintsRes.ok ? await complaintsRes.json() : [];
+
+      document.getElementById('welcomeUser').textContent = '👋 ' + (userData.name || 'User');
+
+      renderHero(userData);
+      renderProfileInfo(userData);
+      renderAccountInfo(userData);
+      renderStats(complaints);
+
+    } catch(err) {
+      showToast('error', '⚠️', 'Failed to load profile. Check server connection.');
+    }
+  }
+
+  // ── Render Hero ──────────────────────────────
+  function renderHero(u) {
+    const initials = u.name ? u.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2) : 'U';
+    const joinDate = new Date(u.createdAt).toLocaleDateString('en-IN',
+      { day:'2-digit', month:'long', year:'numeric' });
+
+    document.getElementById('profileHero').innerHTML = `
+      <div class="d-flex align-items-center gap-4 flex-wrap position-relative" style="z-index:1;">
+        <div class="avatar-wrapper">
+          <div class="avatar-circle">${initials}</div>
+          <div class="avatar-online"></div>
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <h3 style="color:white; font-weight:800; margin:0 0 4px;">${u.name}</h3>
+          <p style="color:#93c5fd; margin:0 0 6px; font-size:14px;">
+            <i class="fas fa-envelope me-1"></i>${u.email}
+          </p>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span style="color:#8899aa; font-size:13px;">
+              <i class="fas fa-calendar-alt me-1"></i>Member since ${joinDate}
+            </span>
+            <span class="badge-verified">
+              <i class="fas fa-check-circle me-1"></i>Verified
+            </span>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // ── Render Profile Info ───────────────────────
+  function renderProfileInfo(u) {
+    document.getElementById('profileInfoBody').innerHTML = `
+      <div class="info-display-row">
+        <span class="info-display-label"><i class="fas fa-user me-1"></i>Full Name</span>
+        <span class="info-display-value">${u.name}</span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label"><i class="fas fa-envelope me-1"></i>Email</span>
+        <span class="info-display-value">${u.email}</span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label"><i class="fas fa-phone me-1"></i>Phone</span>
+        <span class="info-display-value">${u.phone || 'Not provided'}</span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label"><i class="fas fa-map-marker-alt me-1"></i>Address</span>
+        <span class="info-display-value" style="text-align:right; max-width:220px;">${u.address || 'Not provided'}</span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label"><i class="fas fa-id-card me-1"></i>Aadhar No.</span>
+        <span class="aadhar-display">${maskAadhar(u.aadhar)}</span>
+      </div>
+      <div class="mt-4">
+        <button class="btn-edit-toggle" onclick="toggleEdit()" style="display:none;" id="editBtn2">
+          <i class="fas fa-pencil me-1"></i>Edit Profile
+        </button>
+      </div>`;
+  }
+
+  // ── Render Edit Form ──────────────────────────
+  function renderEditForm(u) {
+    document.getElementById('profileInfoBody').innerHTML = `
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label-cg">Full Name</label>
+          <input type="text" id="editName" class="form-control form-control-cg"
+                 value="${u.name}" placeholder="Your full name"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label-cg">Email Address</label>
+          <input type="email" id="editEmail" class="form-control form-control-cg"
+                 value="${u.email}" placeholder="your@email.com"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label-cg">Phone Number</label>
+          <input type="tel" id="editPhone" class="form-control form-control-cg"
+                 value="${u.phone || ''}" placeholder="10-digit mobile number"
+                 maxlength="10"/>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label-cg">Aadhar Number</label>
+          <input type="text" class="form-control form-control-cg"
+                 value="${maskAadhar(u.aadhar)}" disabled/>
+          <small style="color:#556688; font-size:11px;">Aadhar cannot be changed</small>
+        </div>
+        <div class="col-12">
+          <label class="form-label-cg">Address</label>
+          <textarea id="editAddress" class="form-control form-control-cg"
+                    rows="2" placeholder="Your full address">${u.address || ''}</textarea>
+        </div>
+        <div class="col-12 d-flex gap-2 flex-wrap">
+          <button class="btn-save" onclick="saveProfile()">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
+          <button class="btn-edit-toggle" onclick="cancelEdit()">
+            <i class="fas fa-times me-1"></i>Cancel
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // ── Render Account Info ───────────────────────
+  function renderAccountInfo(u) {
+    const joinDate = new Date(u.createdAt).toLocaleDateString('en-IN',
+      { day:'2-digit', month:'short', year:'numeric' });
+    document.getElementById('accountInfoBody').innerHTML = `
+      <div class="info-display-row">
+        <span class="info-display-label">Account Type</span>
+        <span class="info-display-value">
+          <i class="fas fa-user me-1" style="color:#93c5fd;"></i>Citizen
+        </span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label">Member Since</span>
+        <span class="info-display-value">${joinDate}</span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label">Account Status</span>
+        <span class="badge-verified">
+          <i class="fas fa-circle me-1" style="font-size:8px;"></i>Active
+        </span>
+      </div>
+      <div class="info-display-row">
+        <span class="info-display-label">Verification</span>
+        <span class="badge-verified">
+          <i class="fas fa-check-circle me-1"></i>Aadhar Verified
+        </span>
+      </div>`;
+  }
+
+  // ── Render Stats ──────────────────────────────
+  function renderStats(complaints) {
+    const total    = complaints.length;
+    const active   = complaints.filter(c => ['FIR Filed','Criminal Identified','Criminal Caught'].includes(c.status)).length;
+    const closed   = complaints.filter(c => c.status === 'Case Closed').length;
+    const pending  = complaints.filter(c => c.status === 'Submitted').length;
+
+    document.getElementById('statsContainer').innerHTML = `
+      <div class="col-6">
+        <div class="stat-pill">
+          <h4>${total}</h4>
+          <p><i class="fas fa-file-alt me-1"></i>Total Filed</p>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-pill">
+          <h4 style="color:#fcd34d;">${active}</h4>
+          <p><i class="fas fa-spinner me-1"></i>In Progress</p>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-pill">
+          <h4 style="color:#86efac;">${closed}</h4>
+          <p><i class="fas fa-check-circle me-1"></i>Cases Closed</p>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="stat-pill">
+          <h4 style="color:#fca5a5;">${pending}</h4>
+          <p><i class="fas fa-clock me-1"></i>Pending</p>
+        </div>
+      </div>`;
+  }
+
+  // ── Toggle Edit ───────────────────────────────
+  function toggleEdit() {
+    isEditing = !isEditing;
+    const btn = document.getElementById('editToggleBtn');
+    if (isEditing) {
+      btn.innerHTML = '<i class="fas fa-times me-1"></i>Cancel';
+      renderEditForm(userData);
+    } else {
+      cancelEdit();
+    }
+  }
+  function cancelEdit() {
+    isEditing = false;
+    document.getElementById('editToggleBtn').innerHTML = '<i class="fas fa-pencil me-1"></i>Edit';
+    renderProfileInfo(userData);
+  }
+
+  // ── Save Profile ──────────────────────────────
+  async function saveProfile() {
+    const name    = document.getElementById('editName').value.trim();
+    const email   = document.getElementById('editEmail').value.trim();
+    const phone   = document.getElementById('editPhone').value.trim();
+    const address = document.getElementById('editAddress').value.trim();
+
+    if (!name || !email) {
+      showToast('error', '❌', 'Name and email are required.'); return;
+    }
+    if (phone && phone.length !== 10) {
+      showToast('error', '❌', 'Phone must be 10 digits.'); return;
+    }
+
+    try {
+      const res = await fetch('/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type':  'application/json'
+        },
+        body: JSON.stringify({ name, email, phone, address })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        showToast('error', '❌', err.message || 'Update failed.'); return;
+      }
+
+      userData = await res.json();
+      // Update localStorage
+      const stored = JSON.parse(localStorage.getItem('user') || '{}');
+      stored.name = userData.name;
+      stored.email = userData.email;
+      localStorage.setItem('user', JSON.stringify(stored));
+
+      cancelEdit();
+      renderHero(userData);
+      document.getElementById('welcomeUser').textContent = '👋 ' + userData.name;
+      showToast('success', '✅', 'Profile updated successfully!');
+
+    } catch(err) {
+      showToast('error', '❌', 'Server error. Please try again.');
+    }
+  }
+
+  // ── Change Password ───────────────────────────
+  async function changePassword() {
+    const current = document.getElementById('currentPwd').value;
+    const newPwd  = document.getElementById('newPwd').value;
+    const confirm = document.getElementById('confirmPwd').value;
+
+    if (!current || !newPwd || !confirm) {
+      showToast('error', '❌', 'Please fill all password fields.'); return;
+    }
+    if (newPwd.length < 6) {
+      showToast('error', '❌', 'New password must be at least 6 characters.'); return;
+    }
+    if (newPwd !== confirm) {
+      showToast('error', '❌', 'New passwords do not match.'); return;
+    }
+
+    try {
+      const res = await fetch('/api/users/change-password', {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type':  'application/json'
+        },
+        body: JSON.stringify({ currentPassword: current, newPassword: newPwd })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        showToast('error', '❌', err.message || 'Incorrect current password.'); return;
+      }
+
+      document.getElementById('currentPwd').value = '';
+      document.getElementById('newPwd').value     = '';
+      document.getElementById('confirmPwd').value = '';
+      document.getElementById('pwdStrengthBar').classList.add('d-none');
+      showToast('success', '🔐', 'Password changed successfully!');
+
+    } catch(err) {
+      showToast('error', '❌', 'Server error. Please try again.');
+    }
+  }
+
+  // ── Password Strength ─────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('newPwd').addEventListener('input', function() {
+      const bar   = document.getElementById('pwdStrengthBar');
+      const fill  = document.getElementById('pwdStrengthFill');
+      const label = document.getElementById('pwdStrengthLabel');
+      const val   = this.value;
+
+      if (!val) { bar.classList.add('d-none'); return; }
+      bar.classList.remove('d-none');
+
+      let score = 0;
+      if (val.length >= 6)  score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      const levels = [
+        { pct:'20%', color:'#ef4444', text:'Very Weak' },
+        { pct:'40%', color:'#f97316', text:'Weak'      },
+        { pct:'60%', color:'#eab308', text:'Fair'      },
+        { pct:'80%', color:'#22c55e', text:'Strong'    },
+        { pct:'100%',color:'#10b981', text:'Very Strong'}
+      ];
+      const l = levels[Math.min(score, 4)];
+      fill.style.width = l.pct;
+      fill.style.background = l.color;
+      label.textContent  = l.text;
+      label.style.color  = l.color;
+    });
+  });
+
+  // ── Toggle Password Visibility ────────────────
+  function togglePwd(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+
+  // ── Delete Account ────────────────────────────
+  function confirmDelete() {
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  }
+  async function deleteAccount() {
+    try {
+      const res = await fetch('/api/users/delete', {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        logout();
+      } else {
+        showToast('error', '❌', 'Failed to delete account.');
+      }
+    } catch(err) {
+      showToast('error', '❌', 'Server error. Please try again.');
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────
+  function maskAadhar(aadhar) {
+    if (!aadhar) return 'XXXX XXXX XXXX';
+    const s = aadhar.toString().replace(/\D/g,'');
+    return 'XXXX XXXX ' + s.slice(-4);
+  }
+
+  function showToast(type, icon, text) {
+    const toast = document.getElementById('toastMsg');
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastText').textContent = text;
+    toast.className = `toast-cg toast-${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/user/login.html';
+  }
+
+  loadProfile();
+</script>
+</body>
+</html>

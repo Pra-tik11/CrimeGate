@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crime Gate – Officer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #0a0f28, #1a1a2e);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .dash-navbar {
+      background: linear-gradient(135deg, #0f3460, #1a1a4e);
+      padding: 12px 20px;
+      border-bottom: 1px solid #2d3a5a;
+      position: sticky; top: 0; z-index: 999;
+    }
+    .navbar-brand { font-size: 20px; font-weight: 800; color: white !important; }
+    .navbar-brand span { color: #e94560; }
+    .officer-badge {
+      background: rgba(233,69,96,0.15);
+      border: 1px solid rgba(233,69,96,0.3);
+      color: #e94560; padding: 4px 12px;
+      border-radius: 20px; font-size: 11px;
+      font-weight: 700; letter-spacing: 0.5px;
+    }
+    .navbar-toggler { border-color: rgba(255,255,255,0.3); }
+    .navbar-toggler:focus { box-shadow: none; }
+    .navbar-toggler-icon { filter: invert(1); }
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        background: #0f3460; border-radius: 12px;
+        padding: 14px; margin-top: 10px;
+      }
+    }
+
+    /* ── Welcome Hero ── */
+    .welcome-hero {
+      background: linear-gradient(135deg, #0f3460, #1e2d5a);
+      border-radius: 20px; padding: 28px 32px;
+      border: 1px solid #2d3a5a; position: relative;
+      overflow: hidden; margin-bottom: 24px;
+    }
+    .welcome-hero::before {
+      content: ''; position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(233,69,96,0.08);
+    }
+    .welcome-hero::after {
+      content: ''; position: absolute;
+      bottom: -50px; left: -30px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+    .officer-avatar {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; color: white; font-weight: 800;
+      border: 3px solid rgba(255,255,255,0.15);
+      box-shadow: 0 6px 20px rgba(233,69,96,0.3);
+      flex-shrink: 0;
+    }
+
+    /* ── Stat Cards ── */
+    .stat-card {
+      border-radius: 16px; padding: 22px;
+      border: 1px solid #2d3a5a; position: relative;
+      overflow: hidden; transition: 0.3s; cursor: default;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    }
+    .stat-card-total   { background: linear-gradient(135deg, #0f3460, #1e2d5a); }
+    .stat-card-active  { background: linear-gradient(135deg, #1e3a5f, #1e2d5a); }
+    .stat-card-closed  { background: linear-gradient(135deg, #0f2a1e, #1a2e1e); }
+    .stat-card-pending { background: linear-gradient(135deg, #2a1e0f, #2e2010); }
+
+    .stat-card-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+    }
+    .icon-blue   { background: rgba(59,130,246,0.2);  color: #93c5fd; }
+    .icon-yellow { background: rgba(245,158,11,0.2);  color: #fcd34d; }
+    .icon-green  { background: rgba(34,197,94,0.2);   color: #86efac; }
+    .icon-red    { background: rgba(239,68,68,0.2);   color: #fca5a5; }
+
+    .stat-number {
+      font-size: 32px; font-weight: 800; color: white;
+      line-height: 1; margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 13px; color: #8899aa; font-weight: 600;
+    }
+    .stat-trend {
+      font-size: 11px; margin-top: 8px; font-weight: 600;
+    }
+
+    /* ── Section Cards ── */
+    .section-card {
+      background: #161b2e; border-radius: 16px;
+      border: 1px solid #2d3a5a; overflow: hidden;
+    }
+    .section-header {
+      padding: 18px 22px; border-bottom: 1px solid #2d3a5a;
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    }
+    .section-header h6 {
+      color: white; font-weight: 700; margin: 0; font-size: 15px;
+    }
+
+    /* ── Filter Tabs ── */
+    .filter-tabs {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      border: 1px solid #2d3a5a; color: #8899aa;
+      background: #0d1117; cursor: pointer; transition: 0.2s;
+    }
+    .filter-tab:hover { border-color: #e94560; color: #e94560; }
+    .filter-tab.active {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border-color: transparent; color: white;
+    }
+
+    /* ── Search Bar ── */
+    .search-bar {
+      background: #0d1117; border: 1px solid #2d3a5a;
+      border-radius: 10px; padding: 8px 14px;
+      color: white; font-size: 13px; outline: none;
+      transition: 0.2s; width: 220px;
+    }
+    .search-bar::placeholder { color: #3a4a6a; }
+    .search-bar:focus { border-color: #e94560; }
+
+    /* ── Complaint Table ── */
+    .complaint-table { width: 100%; border-collapse: collapse; }
+    .complaint-table th {
+      padding: 12px 16px; text-align: left;
+      font-size: 11px; color: #556688;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      font-weight: 700; border-bottom: 1px solid #2d3a5a;
+      white-space: nowrap;
+    }
+    .complaint-table td {
+      padding: 14px 16px; border-bottom: 1px solid #1e2640;
+      font-size: 13px; vertical-align: middle;
+    }
+    .complaint-table tr:last-child td { border-bottom: none; }
+    .complaint-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .complaint-id {
+      font-family: monospace; color: #93c5fd;
+      font-weight: 700; font-size: 12px;
+    }
+    .complaint-title {
+      color: white; font-weight: 600; font-size: 13px;
+      max-width: 200px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .complaint-location {
+      color: #8899aa; font-size: 12px;
+      max-width: 140px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .complaint-date { color: #556688; font-size: 12px; white-space: nowrap; }
+
+    /* ── Status Badges ── */
+    .status-badge {
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      white-space: nowrap; display: inline-flex;
+      align-items: center; gap: 5px;
+    }
+    .s-submitted   { background: rgba(100,116,139,0.2); color: #94a3b8; border: 1px solid #475569; }
+    .s-fir         { background: rgba(59,130,246,0.2);  color: #93c5fd; border: 1px solid #3b82f6; }
+    .s-identified  { background: rgba(245,158,11,0.2);  color: #fcd34d; border: 1px solid #f59e0b; }
+    .s-caught      { background: rgba(239,68,68,0.2);   color: #fca5a5; border: 1px solid #ef4444; }
+    .s-closed      { background: rgba(34,197,94,0.2);   color: #86efac; border: 1px solid #22c55e; }
+
+    /* ── Action Button ── */
+    .btn-view {
+      background: #1e2640; border: 1px solid #2d3a5a;
+      color: #93c5fd; padding: 6px 14px;
+      border-radius: 8px; font-size: 12px;
+      font-weight: 600; cursor: pointer; transition: 0.2s;
+      white-space: nowrap;
+    }
+    .btn-view:hover { background: #e94560; border-color: #e94560; color: white; }
+
+    /* ── Update Status Dropdown ── */
+    .status-select {
+      background: #0d1117; border: 1px solid #2d3a5a;
+      color: white; border-radius: 8px;
+      padding: 6px 10px; font-size: 12px;
+      font-weight: 600; cursor: pointer; outline: none;
+      transition: 0.2s;
+    }
+    .status-select:focus { border-color: #e94560; }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center; padding: 50px 20px;
+    }
+    .empty-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #1e2640; border: 2px dashed #2d3a5a;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; color: #3a4a6a;
+      margin: 0 auto 16px;
+    }
+
+    /* ── Skeleton Loader ── */
+    .skeleton {
+      background: linear-gradient(90deg, #1e2640 25%, #2d3a5a 50%, #1e2640 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Detail Modal ── */
+    .modal-cg .modal-content {
+      background: #161b2e; border: 1px solid #2d3a5a;
+      border-radius: 20px;
+    }
+    .modal-cg .modal-header {
+      background: linear-gradient(135deg, #0f3460, #1e2d5a);
+      border-bottom: 1px solid #2d3a5a;
+      border-radius: 20px 20px 0 0; padding: 20px 24px;
+    }
+    .modal-cg .modal-body   { padding: 24px; }
+    .modal-cg .modal-footer {
+      border-top: 1px solid #2d3a5a; padding: 16px 24px;
+    }
+
+    .modal-info-row {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; padding: 10px 0;
+      border-bottom: 1px solid #1e2640;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .modal-info-row:last-child { border-bottom: none; }
+    .modal-info-label {
+      font-size: 12px; color: #556688;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      font-weight: 600; min-width: 130px;
+    }
+    .modal-info-value {
+      font-size: 13px; color: white;
+      font-weight: 600; text-align: right; flex: 1;
+    }
+
+    /* ── Status Update Form in Modal ── */
+    .update-section {
+      background: #0d1117; border-radius: 14px;
+      border: 1px solid #2d3a5a; padding: 20px;
+      margin-top: 20px;
+    }
+    .update-section h6 {
+      color: white; font-weight: 700;
+      font-size: 14px; margin-bottom: 14px;
+    }
+    .form-control-cg {
+      background: #161b2e !important;
+      border: 1px solid #2d3a5a !important;
+      color: white !important; border-radius: 10px !important;
+      padding: 10px 14px !important; font-size: 13px !important;
+      transition: 0.2s !important; width: 100%;
+    }
+    .form-control-cg:focus {
+      border-color: #e94560 !important;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.15) !important;
+      outline: none !important;
+    }
+    .form-control-cg::placeholder { color: #3a4a6a !important; }
+
+    .btn-update-status {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border: none; color: white; padding: 10px 24px;
+      border-radius: 10px; font-weight: 700; font-size: 14px;
+      cursor: pointer; transition: 0.3s; width: 100%;
+      margin-top: 10px;
+    }
+    .btn-update-status:hover {
+      opacity: 0.9; transform: translateY(-1px);
+    }
+
+    /* ── Toast ── */
+    .toast-cg {
+      position: fixed; bottom: 24px; right: 24px;
+      border-radius: 14px; padding: 14px 20px;
+      color: white; font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 99999; min-width: 260px;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: 0.4s ease;
+    }
+    .toast-cg.show { transform: translateY(0); opacity: 1; }
+    .toast-success {
+      background: #161b2e; border: 1px solid #22c55e;
+      border-left: 4px solid #22c55e;
+    }
+    .toast-error {
+      background: #161b2e; border: 1px solid #ef4444;
+      border-left: 4px solid #ef4444;
+    }
+
+    /* ── Responsive Table ── */
+    .table-responsive-cg { overflow-x: auto; }
+    @media (max-width: 768px) {
+      .welcome-hero { padding: 20px; }
+      .stat-number  { font-size: 24px; }
+      .search-bar   { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar navbar-expand-lg dash-navbar">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="/">
+      <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+    </a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto ms-3">
+        <li class="nav-item">
+          <a class="nav-link text-white fw-bold" href="/officer/officer-dashboard.html"
+             style="border-bottom: 2px solid #e94560;">
+            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/officer/officer-profile.html">
+            <i class="fas fa-user-shield me-1"></i>My Profile
+          </a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0 flex-wrap">
+        <span class="officer-badge">
+          <i class="fas fa-id-badge me-1"></i>
+          <span id="navBadgeId">---</span>
+        </span>
+        <span class="text-white fw-bold" id="navOfficerName"></span>
+        <button class="btn btn-sm btn-outline-light" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid px-3 px-md-4 py-4">
+
+  <!-- ── Welcome Hero ── -->
+  <div class="welcome-hero">
+    <div class="d-flex align-items-center gap-3 flex-wrap position-relative" style="z-index:1;">
+      <div class="officer-avatar" id="officerAvatar">O</div>
+      <div style="flex:1; min-width:200px;">
+        <p style="color:#93c5fd; font-size:12px; margin:0; text-transform:uppercase; letter-spacing:1px;">
+          Officer Portal
+        </p>
+        <h4 style="color:white; font-weight:800; margin:4px 0 2px;" id="heroName">
+          Welcome, Officer
+        </h4>
+        <div class="d-flex flex-wrap gap-3 mt-1">
+          <span style="color:#8899aa; font-size:13px;">
+            <i class="fas fa-id-badge me-1" style="color:#e94560;"></i>
+            Badge: <strong style="color:white;" id="heroBadge">---</strong>
+          </span>
+          <span style="color:#8899aa; font-size:13px;">
+            <i class="fas fa-award me-1" style="color:#e94560;"></i>
+            Rank: <strong style="color:white;" id="heroRank">---</strong>
+          </span>
+          <span style="color:#8899aa; font-size:13px;">
+            <i class="fas fa-building me-1" style="color:#e94560;"></i>
+            Station: <strong style="color:white;" id="heroStation">---</strong>
+          </span>
+        </div>
+      </div>
+      <div class="text-end d-none d-md-block">
+        <p style="color:#8899aa; font-size:12px; margin:0;">Today</p>
+        <p style="color:white; font-size:15px; font-weight:700; margin:0;" id="currentDate"></p>
+        <p style="color:#e94560; font-size:13px; font-weight:600; margin:0;" id="currentTime"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stat Cards ── -->
+  <div class="row g-3 mb-4" id="statsRow">
+    <!-- Skeleton -->
+    <div class="col-6 col-lg-3">
+      <div class="stat-card stat-card-total">
+        <div class="skeleton mb-3" style="width:48px;height:48px;border-radius:12px;"></div>
+        <div class="skeleton mb-2" style="width:60px;height:32px;"></div>
+        <div class="skeleton" style="width:100px;height:14px;"></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card stat-card-active">
+        <div class="skeleton mb-3" style="width:48px;height:48px;border-radius:12px;"></div>
+        <div class="skeleton mb-2" style="width:60px;height:32px;"></div>
+        <div class="skeleton" style="width:100px;height:14px;"></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card stat-card-closed">
+        <div class="skeleton mb-3" style="width:48px;height:48px;border-radius:12px;"></div>
+        <div class="skeleton mb-2" style="width:60px;height:32px;"></div>
+        <div class="skeleton" style="width:100px;height:14px;"></div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card stat-card-pending">
+        <div class="skeleton mb-3" style="width:48px;height:48px;border-radius:12px;"></div>
+        <div class="skeleton mb-2" style="width:60px;height:32px;"></div>
+        <div class="skeleton" style="width:100px;height:14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Complaints Table ── -->
+  <div class="section-card">
+
+    <!-- Header -->
+    <div class="section-header">
+      <h6>
+        <i class="fas fa-folder-open me-2" style="color:#e94560;"></i>
+        Assigned Complaints
+      </h6>
+      <div class="d-flex gap-2 align-items-center flex-wrap">
+        <input type="text" class="search-bar" id="searchInput"
+               placeholder="🔍  Search complaints..."
+               oninput="filterComplaints()"/>
+        <button class="btn-view" onclick="loadDashboard()">
+          <i class="fas fa-rotate-right me-1"></i>Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="px-3 pt-3 pb-0">
+      <div class="filter-tabs" id="filterTabs">
+        <span class="filter-tab active" data-filter="All"      onclick="setFilter(this)">All</span>
+        <span class="filter-tab" data-filter="Submitted"       onclick="setFilter(this)">Submitted</span>
+        <span class="filter-tab" data-filter="FIR Filed"       onclick="setFilter(this)">FIR Filed</span>
+        <span class="filter-tab" data-filter="Criminal Identified" onclick="setFilter(this)">Identified</span>
+        <span class="filter-tab" data-filter="Criminal Caught" onclick="setFilter(this)">Caught</span>
+        <span class="filter-tab" data-filter="Case Closed"     onclick="setFilter(this)">Closed</span>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive-cg p-3" id="tableArea">
+      <!-- Filled by JS -->
+      <div class="skeleton mb-2" style="height:44px; border-radius:8px;"></div>
+      <div class="skeleton mb-2" style="height:44px; border-radius:8px; opacity:0.7;"></div>
+      <div class="skeleton mb-2" style="height:44px; border-radius:8px; opacity:0.5;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Complaint Detail Modal ── -->
+<div class="modal fade modal-cg" id="detailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div>
+          <p style="color:#93c5fd; font-size:11px; margin:0; letter-spacing:1px;">COMPLAINT DETAIL</p>
+          <h5 class="modal-title" style="color:white; font-weight:800; margin:4px 0 0;"
+              id="modalTitle">Loading...</h5>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                style="filter:invert(1);"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Info Rows -->
+        <div id="modalInfoBody"></div>
+
+        <!-- Update Status -->
+        <div class="update-section">
+          <h6><i class="fas fa-edit me-2" style="color:#e94560;"></i>Update Case Status</h6>
+
+          <div class="mb-3">
+            <label style="color:#8899aa; font-size:12px; text-transform:uppercase;
+                          letter-spacing:0.7px; font-weight:600; margin-bottom:6px; display:block;">
+              New Status
+            </label>
+            <select id="modalStatusSelect" class="form-control-cg">
+              <option value="Submitted">Submitted</option>
+              <option value="FIR Filed">FIR Filed</option>
+              <option value="Criminal Identified">Criminal Identified</option>
+              <option value="Criminal Caught">Criminal Caught</option>
+              <option value="Case Closed">Case Closed</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label style="color:#8899aa; font-size:12px; text-transform:uppercase;
+                          letter-spacing:0.7px; font-weight:600; margin-bottom:6px; display:block;">
+              Remarks / Notes (Optional)
+            </label>
+            <textarea id="modalRemarks" class="form-control-cg"
+                      rows="3"
+                      placeholder="Add investigation notes or remarks..."></textarea>
+          </div>
+
+          <button class="btn-update-status" id="updateStatusBtn"
+                  onclick="updateStatus()">
+            <i class="fas fa-save me-2"></i>Update Status
+          </button>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Close</button>
+        <a id="printComplaintBtn" href="#" target="_blank"
+           style="background:#1e2640; border:1px solid #2d3a5a; color:#93c5fd;
+                  padding:8px 18px; border-radius:10px; font-size:13px;
+                  font-weight:600; text-decoration:none;">
+          <i class="fas fa-print me-1"></i>Print
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-cg" id="toastEl">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  // ── Auth Guard ────────────────────────────────
+  const oToken   = localStorage.getItem('officerToken');
+  const oData    = JSON.parse(localStorage.getItem('officerData') || '{}');
+  if (!oToken) window.location.href = '/officer/officer-login.html';
+
+  // ── State ─────────────────────────────────────
+  let allComplaints  = [];
+  let activeFilter   = 'All';
+  let activeComplaintId = null;
+  let detailModal    = null;
+
+  // ── Init ──────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+    renderOfficerInfo();
+    startClock();
+    loadDashboard();
+  });
+
+  // ── Officer Info ──────────────────────────────
+  function renderOfficerInfo() {
+    const initials = oData.name
+      ? oData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)
+      : 'O';
+    document.getElementById('officerAvatar').textContent = initials;
+    document.getElementById('heroName').textContent      = 'Welcome, ' + (oData.name || 'Officer');
+    document.getElementById('heroBadge').textContent     = oData.badgeNumber || '---';
+    document.getElementById('heroRank').textContent      = oData.rank        || 'Officer';
+    document.getElementById('heroStation').textContent   = oData.station     || 'Unassigned';
+    document.getElementById('navOfficerName').textContent= oData.name        || 'Officer';
+    document.getElementById('navBadgeId').textContent    = oData.badgeNumber || '---';
+  }
+
+  // ── Clock ─────────────────────────────────────
+  function startClock() {
+    function tick() {
+      const now = new Date();
+      document.getElementById('currentDate').textContent =
+        now.toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long' });
+      document.getElementById('currentTime').textContent =
+        now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // ── Load Dashboard ────────────────────────────
+  async function loadDashboard() {
+    try {
+      const [statsRes, complaintsRes] = await Promise.all([
+        fetch('/api/officers/stats',      { headers: { 'Authorization': 'Bearer ' + oToken } }),
+        fetch('/api/officers/complaints', { headers: { 'Authorization': 'Bearer ' + oToken } })
+      ]);
+
+      if (statsRes.status === 401 || complaintsRes.status === 401) { logout(); return; }
+
+      const stats      = await statsRes.json();
+      allComplaints    = await complaintsRes.json();
+
+      renderStats(stats);
+      renderTable(allComplaints);
+
+    } catch(err) {
+      showToast('error', '❌', 'Failed to load dashboard. Check server.');
+    }
+  }
+
+  // ── Render Stats ──────────────────────────────
+  function renderStats(s) {
+    document.getElementById('statsRow').innerHTML = `
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-total" onclick="setFilterById('All')">
+          <div class="stat-card-icon icon-blue"><i class="fas fa-folder-open"></i></div>
+          <div class="stat-number">${s.total}</div>
+          <div class="stat-label">Total Assigned</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-active" onclick="setFilterById('active')">
+          <div class="stat-card-icon icon-yellow"><i class="fas fa-spinner"></i></div>
+          <div class="stat-number" style="color:#fcd34d;">${s.active}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-closed" onclick="setFilterById('Case Closed')">
+          <div class="stat-card-icon icon-green"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-number" style="color:#86efac;">${s.closed}</div>
+          <div class="stat-label">Cases Closed</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card stat-card-pending" onclick="setFilterById('Submitted')">
+          <div class="stat-card-icon icon-red"><i class="fas fa-clock"></i></div>
+          <div class="stat-number" style="color:#fca5a5;">${s.submitted}</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+      </div>`;
+  }
+
+  // ── Render Table ──────────────────────────────
+  function renderTable(complaints) {
+    const search   = document.getElementById('searchInput').value.toLowerCase();
+    let filtered   = complaints;
+
+    // Filter by status tab
+    if (activeFilter !== 'All') {
+      if (activeFilter === 'active') {
+        filtered = filtered.filter(c =>
+          ['FIR Filed','Criminal Identified','Criminal Caught'].includes(c.status));
+      } else {
+        filtered = filtered.filter(c => c.status === activeFilter);
+      }
+    }
+
+    // Filter by search
+    if (search) {
+      filtered = filtered.filter(c =>
+        c.title.toLowerCase().includes(search)       ||
+        c.location.toLowerCase().includes(search)    ||
+        c._id.toLowerCase().includes(search)         ||
+        (c.user?.name || '').toLowerCase().includes(search)
+      );
+    }
+
+    if (filtered.length === 0) {
+      document.getElementById('tableArea').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-folder-open"></i></div>
+          <h6 style="color:#ccd6f6; font-weight:700;">No Complaints Found</h6>
+          <p style="color:#556688; font-size:13px;">
+            ${activeFilter !== 'All' ? 'No complaints with status "' + activeFilter + '"' :
+              'No complaints assigned to you yet.'}
+          </p>
+        </div>`;
+      return;
+    }
+
+    const rows = filtered.map(c => `
+      <tr>
+        <td>
+          <span class="complaint-id">#${c._id.slice(-8).toUpperCase()}</span>
+        </td>
+        <td>
+          <div class="complaint-title" title="${c.title}">${c.title}</div>
+          <div class="complaint-location">
+            <i class="fas fa-map-marker-alt me-1"></i>${c.location}
+          </div>
+        </td>
+        <td>
+          <span style="color:#ccd6f6; font-size:13px;">${c.user?.name || 'Unknown'}</span>
+          <div style="color:#556688; font-size:11px;">${c.user?.phone || ''}</div>
+        </td>
+        <td>
+          <span class="status-badge ${getBadgeClass(c.status)}">
+            <i class="fas ${getStatusIcon(c.status)}"></i>${c.status}
+          </span>
+        </td>
+        <td class="complaint-date">${formatDate(c.createdAt)}</td>
+        <td>
+          <div class="d-flex gap-2 align-items-center">
+            <button class="btn-view" onclick="openDetail('${c._id}')">
+              <i class="fas fa-eye me-1"></i>View
+            </button>
+          </div>
+        </td>
+      </tr>`).join('');
+
+    document.getElementById('tableArea').innerHTML = `
+      <table class="complaint-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Complaint</th>
+            <th>Complainant</th>
+            <th>Status</th>
+            <th>Filed On</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="mt-2 px-1" style="color:#556688; font-size:12px;">
+        Showing ${filtered.length} of ${complaints.length} complaints
+      </div>`;
+  }
+
+  // ── Open Detail Modal ─────────────────────────
+  async function openDetail(id) {
+    activeComplaintId = id;
+
+    document.getElementById('modalTitle').textContent   = 'Loading...';
+    document.getElementById('modalInfoBody').innerHTML  = `
+      <div class="skeleton mb-2" style="height:18px;"></div>
+      <div class="skeleton mb-2" style="height:18px; opacity:0.8;"></div>
+      <div class="skeleton" style="height:18px; opacity:0.6;"></div>`;
+    detailModal.show();
+
+    try {
+      const res = await fetch(`/api/officers/complaints/${id}`, {
+        headers: { 'Authorization': 'Bearer ' + oToken }
+      });
+      if (!res.ok) { showToast('error','❌','Failed to load complaint.'); return; }
+
+      const c = await res.json();
+      renderModal(c);
+
+    } catch(err) {
+      showToast('error','❌','Server error.');
+    }
+  }
+
+  // ── Render Modal ──────────────────────────────
+  function renderModal(c) {
+    document.getElementById('modalTitle').textContent = c.title;
+
+    document.getElementById('modalInfoBody').innerHTML = `
+      <div class="modal-info-row">
+        <span class="modal-info-label">Complaint ID</span>
+        <span class="modal-info-value" style="font-family:monospace; color:#93c5fd;">
+          #${c._id.slice(-8).toUpperCase()}
+        </span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Current Status</span>
+        <span class="modal-info-value">
+          <span class="status-badge ${getBadgeClass(c.status)}">
+            <i class="fas ${getStatusIcon(c.status)}"></i>${c.status}
+          </span>
+        </span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Filed On</span>
+        <span class="modal-info-value">${formatDate(c.createdAt)}</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Location</span>
+        <span class="modal-info-value">
+          <i class="fas fa-map-marker-alt me-1" style="color:#e94560;"></i>${c.location}
+        </span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Complainant</span>
+        <span class="modal-info-value">${c.user?.name || 'N/A'}</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Phone</span>
+        <span class="modal-info-value">${c.user?.phone || 'N/A'}</span>
+      </div>
+      <div class="modal-info-row">
+        <span class="modal-info-label">Description</span>
+        <span class="modal-info-value"
+              style="text-align:left; color:#aab4c8; font-weight:400; font-size:13px; line-height:1.6;">
+          ${c.description}
+        </span>
+      </div>
+      ${c.evidenceFile ? `
+      <div class="modal-info-row">
+        <span class="modal-info-label">Evidence</span>
+        <a href="/${c.evidenceFile}" target="_blank"
+           style="color:#e94560; font-weight:700; font-size:13px; text-decoration:none;">
+          <i class="fas fa-paperclip me-1"></i>View File
+        </a>
+      </div>` : ''}
+      ${c.remarks ? `
+      <div class="modal-info-row">
+        <span class="modal-info-label">Last Remarks</span>
+        <span class="modal-info-value" style="color:#fcd34d; font-size:13px;">${c.remarks}</span>
+      </div>` : ''}`;
+
+    // Set current status in select
+    document.getElementById('modalStatusSelect').value = c.status;
+    document.getElementById('modalRemarks').value      = '';
+  }
+
+  // ── Update Status ─────────────────────────────
+  async function updateStatus() {
+    const status  = document.getElementById('modalStatusSelect').value;
+    const remarks = document.getElementById('modalRemarks').value.trim();
+    const btn     = document.getElementById('updateStatusBtn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+
+    try {
+      const res = await fetch(`/api/officers/complaints/${activeComplaintId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + oToken,
+          'Content-Type':  'application/json'
+        },
+        body: JSON.stringify({ status, remarks })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast('error','❌', data.message || 'Update failed.');
+      } else {
+        showToast('success','✅','Status updated to "' + status + '" successfully!');
+        detailModal.hide();
+        await loadDashboard();
+      }
+
+    } catch(err) {
+      showToast('error','❌','Server error. Try again.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Status';
+    }
+  }
+
+  // ── Filter Tabs ───────────────────────────────
+  function setFilter(el) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    activeFilter = el.dataset.filter;
+    renderTable(allComplaints);
+  }
+
+  function setFilterById(filter) {
+    activeFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.filter === filter);
+    });
+    renderTable(allComplaints);
+  }
+
+  function filterComplaints() { renderTable(allComplaints); }
+
+  // ── Helpers ───────────────────────────────────
+  function getBadgeClass(status) {
+    return {
+      'Submitted':           's-submitted',
+      'FIR Filed':           's-fir',
+      'Criminal Identified': 's-identified',
+      'Criminal Caught':     's-caught',
+      'Case Closed':         's-closed'
+    }[status] || 's-submitted';
+  }
+
+  function getStatusIcon(status) {
+    return {
+      'Submitted':           'fa-clock',
+      'FIR Filed':           'fa-file-contract',
+      'Criminal Identified': 'fa-user-secret',
+      'Criminal Caught':     'fa-handcuffs',
+      'Case Closed':         'fa-check-circle'
+    }[status] || 'fa-clock';
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  function showToast(type, icon, msg) {
+    const el = document.getElementById('toastEl');
+    el.className = `toast-cg toast-${type} show`;
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastMsg').textContent  = msg;
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  function logout() {
+    localStorage.removeItem('officerToken');
+    localStorage.removeItem('officerData');
+    window.location.href = '/officer/officer-login.html';
+  }
+
+</script>
+</body>
+</html>

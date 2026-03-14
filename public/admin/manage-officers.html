@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Officers — CrimeGate Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --red: #e94560; --blue: #0f3460; --dark: #060d1f; --card: #0d1525; --border: #1e2d4a; }
+    body { background: var(--dark); color: white; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--dark); } ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #080f20; border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; transition: 0.3s; }
+    .sidebar-brand { padding: 22px 24px; border-bottom: 1px solid var(--border); font-size: 20px; font-weight: 900; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .sidebar-brand span { color: var(--red); }
+    .sidebar-nav { padding: 16px 12px; flex: 1; overflow-y: auto; }
+    .nav-section-label { font-size: 10px; color: #334466; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 8px 12px 6px; margin-top: 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: #556688; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; margin-bottom: 3px; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: rgba(233,69,96,0.12); color: white; border-left: 3px solid var(--red); }
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+    .admin-profile { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.03); }
+    .admin-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .admin-name { font-size: 13px; font-weight: 700; color: white; }
+    .admin-role { font-size: 11px; color: #556688; }
+
+    /* ── MAIN ── */
+    .main { margin-left: 260px; padding: 30px; min-height: 100vh; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+    .page-title { font-size: 24px; font-weight: 900; }
+    .page-subtitle { font-size: 14px; color: #556688; margin-top: 3px; }
+    .btn-add { background: linear-gradient(135deg, var(--red), #c23152); border: none; color: white; padding: 11px 22px; border-radius: 11px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+    .btn-add:hover { opacity: 0.9; transform: translateY(-2px); color: white; box-shadow: 0 6px 20px rgba(233,69,96,0.4); }
+
+    /* ── SEARCH + FILTER BAR ── */
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 220px; position: relative; }
+    .search-box input { width: 100%; background: var(--card); border: 1px solid var(--border); color: white; padding: 10px 14px 10px 40px; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .search-box input:focus { border-color: var(--red); }
+    .search-box i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #556688; font-size: 14px; }
+    .filter-select { background: var(--card); border: 1px solid var(--border); color: white; padding: 10px 14px; border-radius: 10px; font-size: 13px; outline: none; font-family: 'Poppins', sans-serif; cursor: pointer; }
+    .filter-select option { background: var(--card); }
+
+    /* ── STATS STRIP ── */
+    .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .strip-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+    .strip-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .strip-num { font-size: 24px; font-weight: 900; line-height: 1; }
+    .strip-lbl { font-size: 12px; color: #556688; font-weight: 600; margin-top: 3px; }
+
+    /* ── TABLE ── */
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+    .table-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-head h6 { font-weight: 800; font-size: 15px; margin: 0; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: rgba(255,255,255,0.02); }
+    th { padding: 12px 18px; font-size: 11px; color: #556688; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 14px 18px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody tr:last-child td { border-bottom: none; }
+    .officer-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .badge-pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-active   { background: rgba(34,197,94,0.15);  color: #86efac; }
+    .badge-inactive { background: rgba(239,68,68,0.15);  color: #fca5a5; }
+    .rank-badge { padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.12); color: #93c5fd; }
+    .action-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: #556688; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; transition: 0.2s; }
+    .action-btn:hover.edit   { background: rgba(59,130,246,0.15); border-color: #3b82f6; color: #93c5fd; }
+    .action-btn:hover.delete { background: rgba(239,68,68,0.15);  border-color: #ef4444; color: #fca5a5; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #556688; }
+    .empty-state i { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.4; }
+    .empty-state p { font-size: 15px; font-weight: 600; margin: 0; }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: linear-gradient(160deg, #0d1525, #0f1e3a); border: 1px solid var(--border); border-radius: 22px; width: 100%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.7); animation: modalIn 0.3s ease; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.94) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; background: linear-gradient(135deg, rgba(233,69,96,0.08), rgba(15,52,96,0.15)); border-radius: 22px 22px 0 0; }
+    .modal-label { font-size: 11px; color: var(--red); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .modal-title { font-size: 22px; font-weight: 900; color: white; margin: 0; }
+    .modal-close { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #556688; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.2s; flex-shrink: 0; }
+    .modal-close:hover { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5; }
+    .modal-body { padding: 28px; }
+    .modal-footer { padding: 18px 28px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label { font-size: 11px; color: #8899aa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
+    .form-label .req { color: var(--red); margin-left: 3px; }
+    .form-control { width: 100%; background: rgba(6,13,31,0.8); border: 1.5px solid var(--border); color: white; padding: 12px 16px; border-radius: 11px; font-size: 14px; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .form-control:focus { border-color: var(--red); background: rgba(6,13,31,0.95); box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
+    .form-control option { background: #0d1525; }
+    .form-control::placeholder { color: #334466; }
+    .form-hint { font-size: 11px; color: #334466; margin-top:5px; font-weight: 600; }
+
+    .btn-cancel { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: #8899aa; padding: 11px 24px; border-radius: 11px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .btn-cancel:hover { border-color: #556688; color: white; }
+    .btn-submit { background: linear-gradient(135deg, var(--red), #c23152); border: none; color: white; padding: 11px 26px; border-radius: 11px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 20px rgba(233,69,96,0.35); }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(233,69,96,0.5); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 10px; min-width: 280px; animation: toastIn 0.35s ease; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+    @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+    .toast-success { background: rgba(34,197,94,0.15);  border: 1px solid #22c55e; color: #86efac; }
+    .toast-error   { background: rgba(239,68,68,0.15);  border: 1px solid #ef4444; color: #fca5a5; }
+    .toast-info    { background: rgba(59,130,246,0.15);  border: 1px solid #3b82f6; color: #93c5fd; }
+
+    /* ── DELETE CONFIRM ── */
+    .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box { background: linear-gradient(160deg, #0d1525, #1a0f2e); border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; padding: 36px; max-width: 420px; width: 100%; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.7); animation: modalIn 0.3s ease; }
+    .confirm-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(239,68,68,0.12); border: 2px solid rgba(239,68,68,0.3); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fca5a5; margin: 0 auto 20px; }
+    .confirm-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .confirm-text  { font-size: 14px; color: #8899aa; line-height: 1.6; margin-bottom: 28px; }
+    .confirm-btns  { display: flex; gap: 12px; justify-content: center; }
+    .btn-confirm-del { background: linear-gradient(135deg, #ef4444, #dc2626); border: none; color: white; padding: 11px 28px; border-radius: 11px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; }
+    .btn-confirm-del:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+
+    /* ── LOADING ── */
+    .loading-row td { text-align: center; padding: 50px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to{ transform: rotate(360deg); } }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 18px; }
+      .mobile-toggle { display: flex !important; }
+    }
+    .mobile-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; background: var(--card); border: 1px solid var(--border); color: white; width: 40px; height: 40px; border-radius: 10px; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- Mobile Toggle -->
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+  <i class="fas fa-bars"></i>
+</button>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <a class="sidebar-brand" href="/admin/admin-dashboard.html">
+    <i class="fas fa-shield-alt" style="color:var(--red);"></i>
+    Crime<span>Gate</span>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="/admin/admin-dashboard.html"><i class="fas fa-chart-pie"></i>Dashboard</a>
+    <a class="nav-item" href="/admin/complaints.html"><i class="fas fa-folder-open"></i>Complaints</a>
+
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item active" href="/admin/manage-officers.html"><i class="fas fa-user-shield"></i>Officers</a>
+    <a class="nav-item" href="/admin/manage-stations.html"><i class="fas fa-building"></i>Stations</a>
+    <a class="nav-item" href="/admin/manage-users.html"><i class="fas fa-users"></i>Citizens</a>
+
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-profile">
+      <div class="admin-avatar" id="adminInitial">A</div>
+      <div>
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role">HQ Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><i class="fas fa-user-shield me-2" style="color:var(--red);"></i>Officer Management</h1>
+      <p class="page-subtitle">Add, edit and manage all police officers</p>
+    </div>
+    <button class="btn-add" onclick="openAddModal()">
+      <i class="fas fa-plus"></i> Add New Officer
+    </button>
+  </div>
+
+  <!-- Stats Strip -->
+  <div class="stats-strip" id="statsStrip">
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;"><i class="fas fa-user-shield"></i></div>
+      <div><div class="strip-num" id="statTotal">—</div><div class="strip-lbl">Total Officers</div></div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(34,197,94,0.12);color:#86efac;"><i class="fas fa-circle"></i></div>
+      <div><div class="strip-num" id="statActive">—</div><div class="strip-lbl">Active</div></div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(239,68,68,0.12);color:#fca5a5;"><i class="fas fa-circle"></i></div>
+      <div><div class="strip-num" id="statInactive">—</div><div class="strip-lbl">Inactive</div></div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;"><i class="fas fa-building"></i></div>
+      <div><div class="strip-num" id="statStations">—</div><div class="strip-lbl">Stations</div></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search officers by name, badge, rank..." oninput="filterOfficers()"/>
+    </div>
+    <select class="filter-select" id="filterStatus" onchange="filterOfficers()">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <select class="filter-select" id="filterStation" onchange="filterOfficers()">
+      <option value="">All Stations</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-head">
+      <h6><i class="fas fa-list me-2" style="color:var(--red);"></i>All Officers</h6>
+      <span style="font-size:12px;color:#556688;" id="officerCount">Loading...</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Officer</th>
+            <th>Badge ID</th>
+            <th>Rank</th>
+            <th>Station</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="officersTableBody">
+          <tr class="loading-row"><td colspan="7"><div class="spinner"></div><p style="color:#556688;font-size:13px;margin:0;">Loading officers...</p></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══ ADD / EDIT MODAL ═══ -->
+<div class="modal-overlay" id="officerModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-label">OFFICER MANAGEMENT</div>
+        <h3 class="modal-title" id="modalTitle">Add New Officer</h3>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="officerForm" onsubmit="submitOfficer(event)">
+        <input type="hidden" id="officerId"/>
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Full Name <span class="req">*</span></label>
+              <input type="text" class="form-control" id="officerName" placeholder="e.g. Rajesh Kumar" required/>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Badge Number <span class="req">*</span></label>
+              <input type="text" class="form-control" id="officerBadge" placeholder="e.g. MH-1234" required/>
+              <div class="form-hint">Must be unique across all officers</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" id="officerEmail" placeholder="officer@police.gov.in"/>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="officerPhone" placeholder="10-digit mobile number" maxlength="10"/>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Rank</label>
+              <select class="form-control" id="officerRank">
+                <option value="Constable">Constable</option>
+                <option value="Head Constable">Head Constable</option>
+                <option value="ASI">ASI (Asst. Sub Inspector)</option>
+                <option value="SI">SI (Sub Inspector)</option>
+                <option value="PI">PI (Police Inspector)</option>
+                <option value="API">API (Asst. Police Inspector)</option>
+                <option value="DySP">DySP</option>
+                <option value="SP">SP (Superintendent)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Assign Station <span class="req">*</span></label>
+              <select class="form-control" id="officerStation" required>
+                <option value="">— Select Station —</option>
+              </select>
+              <div class="form-hint" id="stationHint">Loading stations...</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Password <span class="req" id="pwdReqMark">*</span></label>
+              <input type="password" class="form-control" id="officerPassword" placeholder="Min 6 characters"/>
+              <div class="form-hint" id="pwdHint">Required when adding new officer</div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-control" id="officerStatus">
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" id="submitBtn" onclick="submitOfficer(event)">
+        <i class="fas fa-plus"></i> <span id="submitBtnText">Add Officer</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DELETE CONFIRM ═══ -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
+    <h4 class="confirm-title">Delete Officer?</h4>
+    <p class="confirm-text" id="confirmText">This will permanently remove the officer. Officers with active cases cannot be deleted.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-confirm-del" id="confirmDelBtn">Delete Officer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  const TOKEN = localStorage.getItem('adminToken');
+  const API   = '/api';
+
+  let allOfficers = [];
+  let allStations = [];
+  let editMode    = false;
+
+  /* ── AUTH CHECK ── */
+  if (!TOKEN) { window.location.href = '/admin/admin-login.html'; }
+
+  /* ── LOAD ON START ── */
+  window.onload = async () => {
+    setAdminInfo();
+    await Promise.all([loadStations(), loadOfficers()]);
+  };
+
+  function setAdminInfo() {
+    try {
+      const payload = JSON.parse(atob(TOKEN.split('.')[1]));
+      const name = payload.name || 'Admin';
+      document.getElementById('adminName').textContent    = name;
+      document.getElementById('adminInitial').textContent = name.charAt(0).toUpperCase();
+    } catch(e) {}
+  }
+
+  /* ════════════════════════════════
+     LOAD STATIONS
+  ════════════════════════════════ */
+  async function loadStations() {
+    try {
+      const res  = await fetch(`${API}/stations`, { headers: authHeaders() });
+      const data = await res.json();
+
+      if (data.success && data.stations.length > 0) {
+        allStations = data.stations;
+
+        // Populate modal dropdown
+        const sel = document.getElementById('officerStation');
+        sel.innerHTML = '<option value="">— Select Station —</option>';
+        data.stations.forEach(s => {
+          sel.innerHTML += `<option value="${s._id}">${s.name} — ${s.city}</option>`;
+        });
+        document.getElementById('stationHint').textContent =
+          `${data.stations.length} station(s) available`;
+
+        // Populate filter dropdown
+        const filterSel = document.getElementById('filterStation');
+        filterSel.innerHTML = '<option value="">All Stations</option>';
+        data.stations.forEach(s => {
+          filterSel.innerHTML += `<option value="${s._id}">${s.name}</option>`;
+        });
+
+        // Stats
+        document.getElementById('statStations').textContent = data.stations.length;
+      } else {
+        document.getElementById('stationHint').textContent =
+          '⚠️ No stations found. Add stations first.';
+        document.getElementById('stationHint').style.color = '#fca5a5';
+      }
+    } catch(err) {
+      document.getElementById('stationHint').textContent = '❌ Failed to load stations';
+      document.getElementById('stationHint').style.color = '#fca5a5';
+    }
+  }
+
+  /* ════════════════════════════════
+     LOAD OFFICERS
+  ════════════════════════════════ */
+  async function loadOfficers() {
+    try {
+      const res  = await fetch(`${API}/admin/officers`, { headers: authHeaders() });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.message);
+
+      allOfficers = data.officers;
+      renderOfficers(allOfficers);
+      updateStats(allOfficers);
+    } catch(err) {
+      document.getElementById('officersTableBody').innerHTML =
+        `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-exclamation-circle" style="color:var(--red);opacity:1;"></i><p>${err.message || 'Failed to load officers'}</p></div></td></tr>`;
+      showToast('Failed to load officers: ' + err.message, 'error');
+    }
+  }
+
+  function updateStats(officers) {
+    const active   = officers.filter(o => o.isActive).length;
+    const inactive = officers.length - active;
+    document.getElementById('statTotal').textContent    = officers.length;
+    document.getElementById('statActive').textContent   = active;
+    document.getElementById('statInactive').textContent = inactive;
+  }
+
+  /* ════════════════════════════════
+     RENDER TABLE
+  ════════════════════════════════ */
+  function renderOfficers(officers) {
+    const tbody = document.getElementById('officersTableBody');
+    document.getElementById('officerCount').textContent = `${officers.length} officer(s)`;
+
+    if (officers.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-user-shield"></i><p>No officers found</p></div></td></tr>`;
+      return;
+    }
+
+    const colors = ['#e94560','#3b82f6','#8b5cf6','#22c55e','#f59e0b','#ec4899'];
+    tbody.innerHTML = officers.map((o, i) => {
+      const color   = colors[i % colors.length];
+      const initial = o.name ? o.name.charAt(0).toUpperCase() : '?';
+      const station = o.station ? (o.station.name || '—') : '—';
+      const stCity  = o.station ? (o.station.city  || '') : '';
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="officer-avatar" style="background:linear-gradient(135deg,${color}22,${color}44);color:${color};border:1.5px solid ${color}33;">${initial}</div>
+              <div>
+                <div style="font-weight:700;font-size:13px;">${o.name}</div>
+                <div style="font-size:11px;color:#556688;">${o.email || '—'}</div>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-family:monospace;color:#93c5fd;font-weight:700;font-size:13px;">${o.badgeId}</span></td>
+          <td><span class="rank-badge">${o.rank || 'Constable'}</span></td>
+          <td>
+            <div style="font-size:13px;font-weight:600;">${station}</div>
+            <div style="font-size:11px;color:#556688;">${stCity}</div>
+          </td>
+          <td style="color:#8899aa;font-size:13px;">${o.phone || '—'}</td>
+          <td><span class="badge-pill ${o.isActive ? 'badge-active' : 'badge-inactive'}">${o.isActive ? '● Active' : '● Inactive'}</span></td>
+          <td>
+            <button class="action-btn edit"   onclick="openEditModal('${o._id}')" title="Edit"><i class="fas fa-pen"></i></button>
+            <button class="action-btn delete" onclick="openConfirmDelete('${o._id}','${o.name}')" title="Delete" style="margin-left:6px;"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  /* ════════════════════════════════
+     FILTER
+  ════════════════════════════════ */
+  function filterOfficers() {
+    const q       = document.getElementById('searchInput').value.toLowerCase();
+    const status  = document.getElementById('filterStatus').value;
+    const station = document.getElementById('filterStation').value;
+
+    let filtered = allOfficers.filter(o => {
+      const matchQ = !q ||
+        o.name.toLowerCase().includes(q) ||
+        o.badgeId.toLowerCase().includes(q) ||
+        (o.rank || '').toLowerCase().includes(q);
+      const matchStatus  = !status  || (status === 'active' ? o.isActive : !o.isActive);
+      const matchStation = !station || (o.station && o.station._id === station);
+      return matchQ && matchStatus && matchStation;
+    });
+
+    renderOfficers(filtered);
+  }
+
+  /* ════════════════════════════════
+     ADD MODAL
+  ════════════════════════════════ */
+  function openAddModal() {
+    editMode = false;
+    document.getElementById('modalTitle').textContent    = 'Add New Officer';
+    document.getElementById('submitBtnText').textContent = 'Add Officer';
+    document.getElementById('submitBtn').innerHTML       = '<i class="fas fa-plus"></i> Add Officer';
+    document.getElementById('pwdReqMark').style.display  = 'inline';
+    document.getElementById('pwdHint').textContent       = 'Required when adding new officer';
+    document.getElementById('officerPassword').required  = true;
+
+    // Reset form
+    document.getElementById('officerId').value       = '';
+    document.getElementById('officerName').value     = '';
+    document.getElementById('officerBadge').value    = '';
+    document.getElementById('officerEmail').value    = '';
+    document.getElementById('officerPhone').value    = '';
+    document.getElementById('officerRank').value     = 'Constable';
+    document.getElementById('officerStation').value  = '';
+    document.getElementById('officerPassword').value = '';
+    document.getElementById('officerStatus').value   = 'true';
+
+    document.getElementById('officerModal').classList.add('open');
+  }
+
+  /* ════════════════════════════════
+     EDIT MODAL
+  ════════════════════════════════ */
+  function openEditModal(id) {
+    const o = allOfficers.find(x => x._id === id);
+    if (!o) return;
+
+    editMode = true;
+    document.getElementById('modalTitle').textContent    = 'Edit Officer';
+    document.getElementById('submitBtnText').textContent = 'Save Changes';
+    document.getElementById('submitBtn').innerHTML       = '<i class="fas fa-save"></i> Save Changes';
+    document.getElementById('pwdReqMark').style.display  = 'none';
+    document.getElementById('pwdHint').textContent       = 'Leave blank to keep existing password';
+    document.getElementById('officerPassword').required  = false;
+
+    document.getElementById('officerId').value       = o._id;
+    document.getElementById('officerName').value     = o.name;
+    document.getElementById('officerBadge').value    = o.badgeId;
+    document.getElementById('officerEmail').value    = o.email || '';
+    document.getElementById('officerPhone').value    = o.phone || '';
+    document.getElementById('officerRank').value     = o.rank  || 'Constable';
+    document.getElementById('officerStation').value  = o.station ? o.station._id : '';
+    document.getElementById('officerPassword').value = '';
+    document.getElementById('officerStatus').value   = o.isActive ? 'true' : 'false';
+
+    document.getElementById('officerModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('officerModal').classList.remove('open');
+  }
+
+  /* ════════════════════════════════
+     SUBMIT (ADD / EDIT)
+  ════════════════════════════════ */
+  async function submitOfficer(e) {
+    e.preventDefault();
+
+    const name     = document.getElementById('officerName').value.trim();
+    const badgeId  = document.getElementById('officerBadge').value.trim();
+    const email    = document.getElementById('officerEmail').value.trim();
+    const phone    = document.getElementById('officerPhone').value.trim();
+    const rank     = document.getElementById('officerRank').value;
+    const station  = document.getElementById('officerStation').value;
+    const password = document.getElementById('officerPassword').value;
+    const isActive = document.getElementById('officerStatus').value === 'true';
+    const id       = document.getElementById('officerId').value;
+
+    // Validation
+    if (!name)    { showToast('Full name is required', 'error'); return; }
+    if (!badgeId) { showToast('Badge number is required', 'error'); return; }
+    if (!station) { showToast('Please select a station', 'error'); document.getElementById('officerStation').focus(); return; }
+    if (!editMode && !password) { showToast('Password is required for new officer', 'error'); return; }
+    if (password && password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+
+    const btn  = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const body = { name, badgeId, email, phone, rank, station, isActive };
+      if (password) body.password = password;
+
+      const url    = editMode ? `${API}/admin/officers/${id}` : `${API}/admin/officers`;
+      const method = editMode ? 'PUT' : 'POST';
+
+      const res  = await fetch(url, { method, headers: { ...authHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.message);
+
+      showToast(editMode ? 'Officer updated successfully!' : 'Officer added successfully!', 'success');
+      closeModal();
+      await loadOfficers();
+    } catch(err) {
+      showToast(err.message || 'Something went wrong', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = editMode ? '<i class="fas fa-save"></i> Save Changes' : '<i class="fas fa-plus"></i> Add Officer';
+    }
+  }
+
+  /* ════════════════════════════════
+     DELETE
+  ════════════════════════════════ */
+  let deleteTargetId = null;
+
+  function openConfirmDelete(id, name) {
+    deleteTargetId = id;
+    document.getElementById('confirmText').textContent =
+      `Are you sure you want to delete "${name}"? This action cannot be undone.`;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmDelBtn').onclick = confirmDelete;
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    deleteTargetId = null;
+  }
+
+  async function confirmDelete() {
+    if (!deleteTargetId) return;
+    const btn = document.getElementById('confirmDelBtn');
+    btn.textContent = 'Deleting...';
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${API}/admin/officers/${deleteTargetId}`, { method: 'DELETE', headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      showToast('Officer deleted successfully', 'success');
+      closeConfirm();
+      await loadOfficers();
+    } catch(err) {
+      showToast(err.message || 'Delete failed', 'error');
+    } finally {
+      btn.textContent = 'Delete Officer';
+      btn.disabled = false;
+    }
+  }
+
+  /* ════════════════════════════════
+     HELPERS
+  ════════════════════════════════ */
+  function authHeaders() {
+    return { 'Authorization': `Bearer ${TOKEN}` };
+  }
+
+  function showToast(msg, type = 'info') {
+    const c    = document.getElementById('toastContainer');
+    const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
+    const t    = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function logout() {
+    localStorage.removeItem('adminToken');
+    window.location.href = '/admin/admin-login.html';
+  }
+</script>
+</body>
+</html>

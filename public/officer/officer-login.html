@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crime Gate – Officer Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #060d1f, #0a1628, #0f1e3a);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Background Pattern ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(15,52,96,0.4) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(233,69,96,0.15) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Navbar ── */
+    .top-bar {
+      background: rgba(6,13,31,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative; z-index: 10;
+    }
+    .brand {
+      font-size: 20px; font-weight: 800; color: white;
+      text-decoration: none;
+    }
+    .brand span { color: #e94560; }
+    .back-home {
+      color: #8899aa; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: 0.2s;
+    }
+    .back-home:hover { color: white; }
+
+    /* ── Main Layout ── */
+    .login-wrapper {
+      flex: 1; display: flex;
+      align-items: center; justify-content: center;
+      padding: 40px 16px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Left Panel ── */
+    .left-panel {
+      background: linear-gradient(160deg, #0f3460, #1a1a4e);
+      border-radius: 24px 0 0 24px;
+      padding: 50px 40px;
+      color: white;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      position: relative; overflow: hidden;
+      min-height: 580px;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: rgba(233,69,96,0.12);
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute; bottom: -80px; left: -40px;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .shield-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #e94560, #c23152);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; color: white; margin-bottom: 28px;
+      box-shadow: 0 10px 30px rgba(233,69,96,0.4);
+      position: relative; z-index: 1;
+    }
+    .left-panel h2 {
+      font-size: 28px; font-weight: 800;
+      margin-bottom: 10px; position: relative; z-index: 1;
+    }
+    .left-panel p {
+      color: #93aed4; font-size: 14px; line-height: 1.7;
+      max-width: 300px; position: relative; z-index: 1;
+    }
+
+    .feature-list {
+      list-style: none; padding: 0; margin: 28px 0 0;
+      position: relative; z-index: 1;
+    }
+    .feature-list li {
+      color: #93aed4; font-size: 13px; font-weight: 600;
+      padding: 8px 0; display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list li i { color: #e94560; width: 16px; text-align: center; }
+
+    /* ── Right Panel (Form) ── */
+    .right-panel {
+      background: #111827;
+      border-radius: 0 24px 24px 0;
+      padding: 50px 40px;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      min-height: 580px;
+    }
+
+    .form-badge {
+      background: rgba(233,69,96,0.12);
+      border: 1px solid rgba(233,69,96,0.3);
+      color: #e94560; padding: 6px 16px;
+      border-radius: 20px; font-size: 12px;
+      font-weight: 700; display: inline-block;
+      margin-bottom: 16px; letter-spacing: 0.5px;
+    }
+
+    .form-title {
+      font-size: 26px; font-weight: 800;
+      color: white; margin-bottom: 6px;
+    }
+    .form-subtitle {
+      color: #8899aa; font-size: 14px; margin-bottom: 32px;
+    }
+
+    /* ── Form Controls ── */
+    .form-label-cg {
+      color: #8899aa; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 0.8px;
+      font-weight: 600; margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: #556688; font-size: 15px; pointer-events: none;
+    }
+    .form-control-cg {
+      background: #0d1117 !important;
+      border: 1.5px solid #1e2d4a !important;
+      color: white !important;
+      border-radius: 12px !important;
+      padding: 13px 16px 13px 42px !important;
+      font-size: 14px !important;
+      transition: 0.3s !important;
+      width: 100%;
+    }
+    .form-control-cg::placeholder { color: #3a4a6a !important; }
+    .form-control-cg:focus {
+      border-color: #e94560 !important;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.15) !important;
+      outline: none !important;
+    }
+    .form-control-cg.is-invalid {
+      border-color: #ef4444 !important;
+    }
+
+    /* Password toggle */
+    .pwd-eye {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: #556688; cursor: pointer; font-size: 14px;
+      padding: 0; transition: 0.2s;
+    }
+    .pwd-eye:hover { color: #93c5fd; }
+
+    /* ── Badge ID Format hint ── */
+    .badge-hint {
+      font-size: 11px; color: #556688;
+      margin-top: 5px;
+    }
+    .badge-hint span { color: #93c5fd; font-weight: 600; }
+
+    /* ── Login Button ── */
+    .btn-login {
+      background: linear-gradient(135deg, #e94560, #c23152);
+      border: none; color: white;
+      padding: 14px; width: 100%;
+      border-radius: 12px; font-size: 15px;
+      font-weight: 700; transition: 0.3s; cursor: pointer;
+      position: relative; overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn-login::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: 0.3s;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(233,69,96,0.5);
+    }
+    .btn-login:hover::after { background: rgba(255,255,255,0.07); }
+    .btn-login:disabled {
+      opacity: 0.7; cursor: not-allowed; transform: none;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: #2d3a5a; font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #1e2d4a;
+    }
+
+    /* ── Other Login Links ── */
+    .other-logins {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .other-btn {
+      flex: 1; min-width: 100px;
+      background: #0d1117; border: 1px solid #1e2d4a;
+      color: #8899aa; padding: 10px 12px;
+      border-radius: 10px; font-size: 12px; font-weight: 600;
+      text-align: center; text-decoration: none;
+      transition: 0.2s; display: block;
+    }
+    .other-btn:hover { border-color: #e94560; color: #e94560; }
+    .other-btn i { display: block; font-size: 16px; margin-bottom: 4px; }
+
+    /* ── Error Alert ── */
+    .alert-cg {
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 13px; font-weight: 600;
+      display: none; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .alert-error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+    .alert-success {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #86efac;
+    }
+
+    /* ── Footer Note ── */
+    .footer-note {
+      text-align: center; margin-top: 20px;
+      color: #556688; font-size: 12px;
+    }
+    .footer-note a { color: #93c5fd; text-decoration: none; font-weight: 600; }
+    .footer-note a:hover { color: #e94560; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .left-panel  { display: none; }
+      .right-panel {
+        border-radius: 20px !important;
+        padding: 36px 24px;
+        min-height: auto;
+      }
+      .login-wrapper { padding: 24px 16px; align-items: flex-start; padding-top: 40px; }
+    }
+    @media (min-width: 769px) {
+      .login-box { max-width: 860px; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Bar ── -->
+<div class="top-bar">
+  <a class="brand" href="/">
+    <i class="fas fa-shield-alt me-2" style="color:#e94560;"></i>Crime<span>Gate</span>
+  </a>
+  <a href="/" class="back-home">
+    <i class="fas fa-arrow-left me-1"></i>Back to Home
+  </a>
+</div>
+
+<!-- ── Main ── -->
+<div class="login-wrapper">
+  <div class="login-box w-100">
+    <div class="row g-0 shadow-lg" style="border-radius:24px; overflow:hidden; max-width:860px; margin:0 auto;">
+
+      <!-- Left Panel -->
+      <div class="col-lg-5">
+        <div class="left-panel h-100">
+          <div class="shield-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h2>Officer<br/>Portal</h2>
+          <p>Secure access for Police Officers to manage and update assigned complaint cases.</p>
+
+          <ul class="feature-list">
+            <li><i class="fas fa-check"></i>View assigned complaints</li>
+            <li><i class="fas fa-check"></i>Update case investigation status</li>
+            <li><i class="fas fa-check"></i>Access evidence files</li>
+            <li><i class="fas fa-check"></i>Coordinate with police station</li>
+            <li><i class="fas fa-check"></i>Case history & reports</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="col-lg-7">
+        <div class="right-panel">
+
+          <div class="form-badge">
+            <i class="fas fa-lock me-1"></i>OFFICER ACCESS ONLY
+          </div>
+          <h4 class="form-title">Officer Sign In</h4>
+          <p class="form-subtitle">Enter your Badge ID and password to access the officer portal</p>
+
+          <!-- Alert Box -->
+          <div class="alert-cg alert-error" id="alertBox">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="alertMsg">Invalid credentials</span>
+          </div>
+
+          <!-- Form -->
+          <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+
+            <!-- Badge ID -->
+            <div class="mb-4">
+              <label class="form-label-cg">
+                <i class="fas fa-id-badge me-1"></i>Badge ID
+              </label>
+              <div class="input-wrap">
+                <i class="fas fa-id-card input-icon"></i>
+                <input type="text" id="badgeId" class="form-control-cg"
+                       placeholder="e.g. MH-1234"
+                       autocomplete="username" required/>
+              </div>
+              <p class="badge-hint">
+                Format: <span>STATE-NUMBER</span> &nbsp;(e.g. MH-1234, DL-5678)
+              </p>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+              <label class="form-label-cg">
+                <i class="fas fa-lock me-1"></i>Password
+              </label>
+              <div class="input-wrap">
+                <i class="fas fa-key input-icon"></i>
+                <input type="password" id="password" class="form-control-cg"
+                       placeholder="Enter your password"
+                       autocomplete="current-password" required/>
+                <button type="button" class="pwd-eye" onclick="togglePwd()">
+                  <i class="fas fa-eye" id="eyeIcon"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <div class="form-check" style="margin:0;">
+                <input class="form-check-input" type="checkbox" id="rememberMe"
+                       style="background:#0d1117; border-color:#2d3a5a; cursor:pointer;">
+                <label class="form-check-label" for="rememberMe"
+                       style="color:#8899aa; font-size:13px; cursor:pointer;">
+                  Remember me
+                </label>
+              </div>
+              <a href="#" style="color:#93c5fd; font-size:13px; font-weight:600; text-decoration:none;">
+                Forgot password?
+              </a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-login" id="loginBtn">
+              <span id="btnText">
+                <i class="fas fa-sign-in-alt me-2"></i>Sign In to Officer Portal
+              </span>
+              <span id="btnLoader" class="d-none">
+                <i class="fas fa-spinner fa-spin me-2"></i>Authenticating...
+              </span>
+            </button>
+
+          </form>
+
+          <!-- Divider -->
+          <div class="divider">Other Portals</div>
+
+          <!-- Other Login Links -->
+          <div class="other-logins">
+            <a href="/user/login.html" class="other-btn">
+              <i class="fas fa-user"></i>Citizen
+            </a>
+            <a href="/station/incharge-login.html" class="other-btn">
+              <i class="fas fa-building"></i>Station
+            </a>
+            <a href="/hq/hq-login.html" class="other-btn">
+              <i class="fas fa-landmark"></i>HQ
+            </a>
+          </div>
+
+          <!-- Footer Note -->
+          <div class="footer-note mt-4">
+            <i class="fas fa-info-circle me-1"></i>
+            Officer accounts are created by your
+            <a href="/station/incharge-login.html">Station In-Charge</a>.
+            Contact them if you don't have access.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  // ── Redirect if already logged in ────────────
+  const existingToken = localStorage.getItem('officerToken');
+  if (existingToken) window.location.href = '/officer/officer-dashboard.html';
+
+  // ── Remember Me ───────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('officerBadge');
+    if (saved) {
+      document.getElementById('badgeId').value     = saved;
+      document.getElementById('rememberMe').checked = true;
+    }
+  });
+
+  // ── Toggle Password ───────────────────────────
+  function togglePwd() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fas fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fas fa-eye';
+    }
+  }
+
+  // ── Show / Hide Alert ─────────────────────────
+  function showAlert(msg, type = 'error') {
+    const box = document.getElementById('alertBox');
+    box.className = `alert-cg alert-${type}`;
+    box.style.display = 'flex';
+    document.getElementById('alertMsg').textContent = msg;
+    // Auto-hide after 5s
+    setTimeout(() => box.style.display = 'none', 5000);
+  }
+
+  // ── Handle Login ──────────────────────────────
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    const badgeId  = document.getElementById('badgeId').value.trim();
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('rememberMe').checked;
+
+    // Basic validation
+    if (!badgeId || !password) {
+      showAlert('Please fill in both Badge ID and password.'); return;
+    }
+    if (password.length < 4) {
+      showAlert('Password is too short.'); return;
+    }
+
+    // UI loading state
+    document.getElementById('loginBtn').disabled  = true;
+    document.getElementById('btnText').classList.add('d-none');
+    document.getElementById('btnLoader').classList.remove('d-none');
+    document.getElementById('alertBox').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/officers/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ badgeId, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showAlert(data.message || 'Invalid Badge ID or password.');
+        resetBtn(); return;
+      }
+
+      // ✅ Save token & officer data
+      localStorage.setItem('officerToken',  data.token);
+      localStorage.setItem('officerData',   JSON.stringify(data.officer));
+
+      // Remember me
+      if (remember) {
+        localStorage.setItem('officerBadge', badgeId);
+      } else {
+        localStorage.removeItem('officerBadge');
+      }
+
+      showAlert('Login successful! Redirecting...', 'success');
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        window.location.href = '/officer/officer-dashboard.html';
+      }, 1000);
+
+    } catch (err) {
+      showAlert('Cannot connect to server. Make sure server is running.');
+      resetBtn();
+    }
+  }
+
+  function resetBtn() {
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('btnText').classList.remove('d-none');
+    document.getElementById('btnLoader').classList.add('d-none');
+  }
+
+  // ── Enter key support ─────────────────────────
+  document.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') {
+      handleLogin(e);
+    }
+  });
+</script>
+</body>
+</html>

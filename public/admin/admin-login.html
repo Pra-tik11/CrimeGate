@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crime Gate – Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #060d1f;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated Background ── */
+    .bg-animated {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(233,69,96,0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(15,52,96,0.35)  0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(6,13,31,0.9)    0%, transparent 70%);
+    }
+
+    /* ── Floating Particles ── */
+    .particle {
+      position: fixed; border-radius: 50%;
+      background: rgba(233,69,96,0.08);
+      animation: float 8s ease-in-out infinite;
+      z-index: 0; pointer-events: none;
+    }
+    .p1 { width:280px; height:280px; top:-80px;  left:-80px;  animation-delay:0s;  }
+    .p2 { width:200px; height:200px; bottom:-60px; right:-60px; animation-delay:3s; background:rgba(15,52,96,0.15); }
+    .p3 { width:140px; height:140px; top:40%;  right:10%;   animation-delay:5s;  background:rgba(233,69,96,0.05); }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0)   rotate(0deg);   }
+      33%      { transform: translateY(-20px) rotate(5deg); }
+      66%      { transform: translateY(10px)  rotate(-3deg);}
+    }
+
+    /* ── Top Bar ── */
+    .top-bar {
+      position: relative; z-index: 10;
+      padding: 16px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      background: rgba(6,13,31,0.8);
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      font-size: 20px; font-weight: 800; color: white; text-decoration: none;
+    }
+    .brand span { color: #e94560; }
+    .back-link {
+      color: #556688; font-size: 13px; font-weight: 600;
+      text-decoration: none; transition: 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .back-link:hover { color: white; }
+
+    /* ── Main Wrapper ── */
+    .login-wrapper {
+      flex: 1; display: flex;
+      align-items: center; justify-content: center;
+      padding: 40px 16px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Login Card ── */
+    .login-card {
+      width: 100%; max-width: 480px;
+      background: #0d1525;
+      border: 1px solid #1e2d4a;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6),
+                  0 0 0 1px rgba(233,69,96,0.05);
+    }
+
+    /* ── Card Header ── */
+    .card-header-cg {
+      background: linear-gradient(135deg, #0f1e3a, #0f3460);
+      padding: 36px 36px 28px;
+      text-align: center;
+      border-bottom: 1px solid #1e2d4a;
+      position: relative; overflow: hidden;
+    }
+    .card-header-cg::before {
+      content: ''; position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: rgba(233,69,96,0.08);
+    }
+    .card-header-cg::after {
+      content: ''; position: absolute;
+      bottom: -50px; left: -30px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* ── HQ Shield Icon ── */
+    .hq-icon {
+      width: 80px; height: 80px; border-radius: 22px;
+      background: linear-gradient(135deg, #e94560, #c23152);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 34px; color: white; margin: 0 auto 18px;
+      box-shadow: 0 12px 35px rgba(233,69,96,0.45);
+      position: relative; z-index: 1;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 12px 35px rgba(233,69,96,0.45); }
+      50%      { box-shadow: 0 12px 50px rgba(233,69,96,0.75); }
+    }
+
+    .card-header-cg h4 {
+      color: white; font-weight: 800; font-size: 22px;
+      margin: 0 0 6px; position: relative; z-index: 1;
+    }
+    .card-header-cg p {
+      color: #8899aa; font-size: 13px; margin: 0;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Secure Badge ── */
+    .secure-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: #86efac; padding: 4px 14px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      margin-top: 14px; position: relative; z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Card Body ── */
+    .card-body-cg { padding: 32px 36px 36px; }
+
+    /* ── Form Controls ── */
+    .form-label-cg {
+      color: #8899aa; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.9px;
+      font-weight: 700; margin-bottom: 8px; display: block;
+    }
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: #334466; font-size: 14px; pointer-events: none;
+      transition: 0.2s;
+    }
+    .form-control-cg {
+      background: #060d1f !important;
+      border: 1.5px solid #1e2d4a !important;
+      color: white !important;
+      border-radius: 12px !important;
+      padding: 13px 16px 13px 42px !important;
+      font-size: 14px !important;
+      transition: 0.3s !important;
+      width: 100%;
+    }
+    .form-control-cg::placeholder { color: #2a3a5a !important; }
+    .form-control-cg:focus {
+      border-color: #e94560 !important;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.12) !important;
+      outline: none !important;
+    }
+    .form-control-cg:focus + .input-icon,
+    .input-wrap:focus-within .input-icon { color: #e94560; }
+    .form-control-cg.is-invalid {
+      border-color: #ef4444 !important;
+    }
+
+    /* ── Eye Toggle ── */
+    .pwd-eye {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: #334466; cursor: pointer; font-size: 14px;
+      padding: 0; transition: 0.2s;
+    }
+    .pwd-eye:hover { color: #93c5fd; }
+
+    /* ── Login Button ── */
+    .btn-login {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border: none; color: white;
+      padding: 14px; border-radius: 12px;
+      font-weight: 800; font-size: 15px;
+      cursor: pointer; transition: 0.35s;
+      width: 100%; letter-spacing: 0.5px;
+      position: relative; overflow: hidden;
+    }
+    .btn-login::before {
+      content: ''; position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      transition: 0.5s;
+    }
+    .btn-login:hover { opacity: 0.92; transform: translateY(-2px); }
+    .btn-login:hover::before { left: 100%; }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── Divider ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 22px 0;
+    }
+    .divider hr { flex: 1; border-color: #1e2d4a; }
+    .divider span { color: #334466; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+    /* ── Info Box ── */
+    .info-box {
+      background: rgba(59,130,246,0.07);
+      border: 1px solid rgba(59,130,246,0.15);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .info-box i { color: #93c5fd; font-size: 15px; margin-top: 2px; flex-shrink: 0; }
+    .info-box p { color: #8899aa; font-size: 12px; margin: 0; line-height: 1.6; }
+    .info-box p strong { color: #93c5fd; }
+
+    /* ── Alert Box ── */
+    .alert-cg {
+      border-radius: 11px; padding: 12px 16px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; display: none;
+    }
+    .alert-error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+    }
+    .alert-success {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: #86efac;
+    }
+
+    /* ── Attempt Counter ── */
+    .attempt-wrap {
+      text-align: center; margin-top: 10px;
+      font-size: 12px; font-weight: 600;
+      color: #556688; display: none;
+    }
+    .attempt-wrap span { color: #fca5a5; }
+
+    /* ── Footer ── */
+    .login-footer {
+      text-align: center; padding: 18px;
+      border-top: 1px solid #1e2d4a;
+      background: rgba(0,0,0,0.2);
+    }
+    .login-footer p {
+      color: #334466; font-size: 12px; margin: 0;
+    }
+
+    /* ── Lockout Overlay ── */
+    .lockout-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(6,13,31,0.96);
+      z-index: 9999; align-items: center; justify-content: center;
+      flex-direction: column; text-align: center; padding: 20px;
+    }
+    .lockout-overlay.show { display: flex; }
+    .lockout-icon {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: rgba(239,68,68,0.12);
+      border: 2px solid #ef4444;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 44px; color: #ef4444; margin-bottom: 24px;
+    }
+    #lockoutTimer {
+      font-size: 48px; font-weight: 800; color: #e94560;
+      margin: 10px 0;
+    }
+
+    /* ── Toast ── */
+    .toast-cg {
+      position: fixed; bottom: 24px; right: 24px;
+      border-radius: 13px; padding: 13px 18px;
+      color: white; font-size: 13px; font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      z-index: 99999; min-width: 240px;
+      display: flex; align-items: center; gap: 9px;
+      transform: translateY(80px); opacity: 0;
+      transition: 0.4s ease;
+    }
+    .toast-cg.show { transform: translateY(0); opacity: 1; }
+    .toast-success { background: #0d1525; border: 1px solid #22c55e; border-left: 4px solid #22c55e; }
+    .toast-error   { background: #0d1525; border: 1px solid #ef4444; border-left: 4px solid #ef4444; }
+
+    /* ── Responsive ── */
+    @media (max-width: 540px) {
+      .card-header-cg { padding: 28px 22px 22px; }
+      .card-body-cg   { padding: 24px 22px 28px; }
+      .hq-icon        { width: 68px; height: 68px; font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-animated"></div>
+<div class="particle p1"></div>
+<div class="particle p2"></div>
+<div class="particle p3"></div>
+
+<!-- ── Top Bar ── -->
+<div class="top-bar">
+  <a class="brand" href="/">
+    <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+  </a>
+  <a class="back-link" href="/">
+    <i class="fas fa-arrow-left"></i>Back to Home
+  </a>
+</div>
+
+<!-- ── Main ── -->
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <!-- Header -->
+    <div class="card-header-cg">
+      <div class="hq-icon">
+        <i class="fas fa-user-tie"></i>
+      </div>
+      <h4>HQ Admin Portal</h4>
+      <p>Authorized Personnel Only</p>
+      <div class="secure-badge">
+        <i class="fas fa-lock" style="font-size:10px;"></i>
+        256-bit Encrypted · Secure Access
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body-cg">
+
+      <!-- Alert -->
+      <div class="alert-cg alert-error" id="alertBox">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="alertMsg">Invalid credentials</span>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label-cg">
+            <i class="fas fa-envelope me-1"></i>Admin Email Address
+          </label>
+          <div class="input-wrap">
+            <input type="email" id="adminEmail"
+                   class="form-control-cg"
+                   placeholder="admin@crimegate.gov.in"
+                   autocomplete="username"
+                   required/>
+            <i class="fas fa-envelope input-icon"></i>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="form-label-cg">
+            <i class="fas fa-lock me-1"></i>Admin Password
+          </label>
+          <div class="input-wrap">
+            <input type="password" id="adminPassword"
+                   class="form-control-cg"
+                   placeholder="Enter admin password"
+                   autocomplete="current-password"
+                   required/>
+            <i class="fas fa-lock input-icon"></i>
+            <button type="button" class="pwd-eye" onclick="toggleEye()">
+              <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Attempt Counter -->
+        <div class="attempt-wrap" id="attemptWrap">
+          <span id="attemptCount">0</span>/5 failed attempts —
+          <span>account will lock for 60s after 5 failures</span>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login" id="loginBtn">
+          <i class="fas fa-sign-in-alt me-2"></i>Access Admin Dashboard
+        </button>
+
+      </form>
+
+      <!-- Divider -->
+      <div class="divider">
+        <hr/><span>Restricted Access</span><hr/>
+      </div>
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <p>
+          This portal is for <strong>authorized HQ administrators only</strong>.
+          All login attempts are logged and monitored.
+          Unauthorized access is a criminal offence.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p>
+        <i class="fas fa-shield-alt me-1" style="color:#e94560;"></i>
+        CrimeGate v1.0 &nbsp;·&nbsp; HQ Command &nbsp;·&nbsp;
+        <span style="color:#556688;">© 2024 All Rights Reserved</span>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Lockout Overlay ── -->
+<div class="lockout-overlay" id="lockoutOverlay">
+  <div class="lockout-icon">
+    <i class="fas fa-ban"></i>
+  </div>
+  <h3 style="color:white; font-weight:800; margin:0 0 8px;">Access Temporarily Locked</h3>
+  <p style="color:#8899aa; font-size:14px; margin:0 0 10px;">
+    Too many failed attempts. Please wait:
+  </p>
+  <div id="lockoutTimer">60</div>
+  <p style="color:#556688; font-size:13px;">seconds</p>
+  <p style="color:#334466; font-size:12px; margin-top:20px;">
+    <i class="fas fa-exclamation-triangle me-1" style="color:#f59e0b;"></i>
+    This incident has been logged.
+  </p>
+</div>
+
+<!-- Toast -->
+<div class="toast-cg" id="toastEl">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  // ── Redirect if already logged in ────────────
+  if (localStorage.getItem('adminToken')) {
+    window.location.href = '/admin/admin-dashboard.html';
+  }
+
+  // ── State ─────────────────────────────────────
+  let failedAttempts = parseInt(sessionStorage.getItem('adminFails') || '0');
+  const MAX_ATTEMPTS = 5;
+  const LOCK_SECONDS = 60;
+
+  // ── Check if locked on page load ─────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    const lockedUntil = parseInt(sessionStorage.getItem('adminLockedUntil') || '0');
+    if (lockedUntil > Date.now()) {
+      startLockout(Math.ceil((lockedUntil - Date.now()) / 1000));
+    }
+    if (failedAttempts > 0) {
+      document.getElementById('attemptWrap').style.display = 'block';
+      document.getElementById('attemptCount').textContent  = failedAttempts;
+    }
+  });
+
+  // ── Handle Login ──────────────────────────────
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    // Check lockout
+    const lockedUntil = parseInt(sessionStorage.getItem('adminLockedUntil') || '0');
+    if (lockedUntil > Date.now()) {
+      showAlert('Access locked. Please wait for the timer to expire.');
+      return;
+    }
+
+    const email    = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const btn      = document.getElementById('loginBtn');
+
+    // Basic validation
+    if (!email || !password) {
+      showAlert('Please enter your email and password.');
+      shakeCard(); return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showAlert('Please enter a valid email address.');
+      shakeCard(); return;
+    }
+
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Authenticating...';
+    hideAlert();
+
+    try {
+      const res  = await fetch('/api/admin/login', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // ── Failed attempt ──
+        failedAttempts++;
+        sessionStorage.setItem('adminFails', failedAttempts);
+
+        document.getElementById('attemptWrap').style.display = 'block';
+        document.getElementById('attemptCount').textContent  = failedAttempts;
+
+        if (failedAttempts >= MAX_ATTEMPTS) {
+          // Lock out
+          const until = Date.now() + LOCK_SECONDS * 1000;
+          sessionStorage.setItem('adminLockedUntil', until);
+          startLockout(LOCK_SECONDS);
+        } else {
+          const remaining = MAX_ATTEMPTS - failedAttempts;
+          showAlert(
+            (data.message || 'Invalid credentials') +
+            ` — ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`
+          );
+          shakeCard();
+        }
+        return;
+      }
+
+      // ── Success ──
+      failedAttempts = 0;
+      sessionStorage.removeItem('adminFails');
+      sessionStorage.removeItem('adminLockedUntil');
+
+      localStorage.setItem('adminToken', data.token);
+      localStorage.setItem('adminData',  JSON.stringify(data.admin));
+
+      btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Access Granted!';
+      btn.style.background = 'linear-gradient(135deg, #22c55e, #15803d)';
+
+      showToast('success', '✅', 'Welcome, Admin! Redirecting to HQ...');
+
+      setTimeout(() => {
+        window.location.href = '/admin/admin-dashboard.html';
+      }, 1200);
+
+    } catch(err) {
+      showAlert('Cannot connect to server. Make sure the server is running.');
+      shakeCard();
+    } finally {
+      if (btn.textContent.includes('Authenticating')) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Access Admin Dashboard';
+      }
+    }
+  }
+
+  // ── Lockout Timer ─────────────────────────────
+  let lockTimer = null;
+  function startLockout(seconds) {
+    const overlay = document.getElementById('lockoutOverlay');
+    const timerEl = document.getElementById('lockoutTimer');
+    overlay.classList.add('show');
+    timerEl.textContent = seconds;
+
+    if (lockTimer) clearInterval(lockTimer);
+    lockTimer = setInterval(() => {
+      seconds--;
+      timerEl.textContent = seconds;
+      if (seconds <= 0) {
+        clearInterval(lockTimer);
+        overlay.classList.remove('show');
+        failedAttempts = 0;
+        sessionStorage.removeItem('adminFails');
+        sessionStorage.removeItem('adminLockedUntil');
+        document.getElementById('attemptWrap').style.display = 'none';
+        document.getElementById('attemptCount').textContent  = '0';
+        hideAlert();
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('loginBtn').innerHTML =
+          '<i class="fas fa-sign-in-alt me-2"></i>Access Admin Dashboard';
+      }
+    }, 1000);
+  }
+
+  // ── Eye Toggle ────────────────────────────────
+  function toggleEye() {
+    const inp  = document.getElementById('adminPassword');
+    const icon = document.getElementById('eyeIcon');
+    if (inp.type === 'password') {
+      inp.type = 'text'; icon.className = 'fas fa-eye-slash';
+    } else {
+      inp.type = 'password'; icon.className = 'fas fa-eye';
+    }
+  }
+
+  // ── Alert ─────────────────────────────────────
+  function showAlert(msg) {
+    const box = document.getElementById('alertBox');
+    document.getElementById('alertMsg').textContent = msg;
+    box.style.display = 'flex';
+  }
+  function hideAlert() {
+    document.getElementById('alertBox').style.display = 'none';
+  }
+
+  // ── Shake Animation ───────────────────────────
+  function shakeCard() {
+    const card = document.querySelector('.login-card');
+    card.style.animation = 'none';
+    card.style.transform = 'translateX(-8px)';
+    setTimeout(() => card.style.transform = 'translateX(8px)',  80);
+    setTimeout(() => card.style.transform = 'translateX(-5px)', 160);
+    setTimeout(() => card.style.transform = 'translateX(5px)',  240);
+    setTimeout(() => card.style.transform = 'translateX(0)',    320);
+  }
+
+  // ── Toast ─────────────────────────────────────
+  function showToast(type, icon, msg) {
+    const el = document.getElementById('toastEl');
+    el.className = `toast-cg toast-${type} show`;
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastMsg').textContent  = msg;
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+
+  // ── Enter key support ─────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const form = document.getElementById('loginForm');
+      if (form) form.requestSubmit();
+    }
+  });
+
+  // ── Clear alert on input ──────────────────────
+  ['adminEmail','adminPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('input', hideAlert);
+  });
+
+</script>
+</body>
+</html>

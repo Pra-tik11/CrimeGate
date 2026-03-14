@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crime Gate – My Complaints</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0f28, #1a1a2e);
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
+        .dash-navbar {
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            padding: 12px 20px;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 800;
+            color: white !important;
+        }
+
+        .navbar-brand span {
+            color: #ffe0e6;
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .navbar-toggler-icon {
+            filter: invert(1);
+        }
+
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: #0f3460;
+                border-radius: 12px;
+                padding: 14px;
+                margin-top: 10px;
+            }
+        }
+
+        /* ── Summary Cards ── */
+        .summary-card {
+            border-radius: 16px;
+            padding: 22px 20px;
+            color: white;
+            border: none;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .summary-card h2 {
+            font-size: 40px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .summary-card p {
+            margin: 6px 0 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .card-blue {
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+        }
+
+        .card-orange {
+            background: linear-gradient(135deg, #e65100, #f57c00);
+        }
+
+        .card-green {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+        }
+
+        .card-red {
+            background: linear-gradient(135deg, #b71c1c, #c62828);
+        }
+
+        /* ── Filter Bar ── */
+        .filter-bar {
+            background: #161b2e;
+            border-radius: 14px;
+            padding: 16px 20px;
+            border: 1px solid #2d3a5a;
+        }
+
+        .filter-bar .form-control,
+        .filter-bar .form-select {
+            background: #0d1117;
+            border: 1px solid #2d3a5a;
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            padding: 9px 14px;
+        }
+
+        .filter-bar .form-control::placeholder {
+            color: #556688;
+        }
+
+        .filter-bar .form-control:focus,
+        .filter-bar .form-select:focus {
+            background: #0d1117;
+            border-color: #e94560;
+            color: white;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.15);
+        }
+
+        .filter-bar .form-select option {
+            background: #0d1117;
+        }
+
+        /* ── Complaint Cards ── */
+        .complaint-card {
+            background: #161b2e;
+            border-radius: 16px;
+            border: 1px solid #2d3a5a;
+            padding: 20px;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .complaint-card:hover {
+            border-color: #e94560;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .complaint-id {
+            font-size: 12px;
+            color: #556688;
+            font-weight: 600;
+        }
+
+        .complaint-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .complaint-desc {
+            font-size: 13px;
+            color: #7a8aaa;
+            line-height: 1.5;
+        }
+
+        .complaint-meta {
+            font-size: 12px;
+            color: #556688;
+        }
+
+        /* ── Status Badges ── */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .status-submitted {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid #475569;
+        }
+
+        .status-fir {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid #3b82f6;
+        }
+
+        .status-identified {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+            border: 1px solid #f59e0b;
+        }
+
+        .status-caught {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+        }
+
+        .status-closed {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid #22c55e;
+        }
+
+        /* ── Buttons ── */
+        .btn-view {
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            border: none;
+            color: white;
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-view:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .btn-primary-cg {
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 9px 22px;
+            transition: 0.3s;
+        }
+
+        .btn-primary-cg:hover {
+            opacity: 0.9;
+            color: white;
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            text-align: center;
+            padding: 70px 20px;
+        }
+
+        .empty-icon {
+            width: 100px;
+            height: 100px;
+            background: #1e2640;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+            color: #3a4a6a;
+            border: 2px dashed #2d3a5a;
+        }
+
+        .empty-state h5 {
+            color: #ccd6f6;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: #7a8aaa;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* ✅ Fixed File Complaint Button */
+        .btn-file-complaint {
+            background: linear-gradient(135deg, #e94560, #0f3460);
+            color: white !important;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+            box-shadow: 0 6px 25px rgba(233, 69, 96, 0.5);
+            letter-spacing: 0.3px;
+        }
+
+        .btn-file-complaint:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(233, 69, 96, 0.7);
+        }
+
+        /* ── Loading ── */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8899aa;
+        }
+
+        /* ── Detail Modal ── */
+        .modal-content {
+            background: #161b2e;
+            border: 1px solid #2d3a5a;
+            border-radius: 16px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #2d3a5a;
+            padding: 20px 24px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #2d3a5a;
+        }
+
+        .modal-title {
+            color: white;
+            font-weight: 700;
+        }
+
+        .btn-close-white {
+            filter: invert(1);
+        }
+
+        .info-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #222d45;
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #8899aa;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ── Timeline ── */
+        .timeline-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .timeline-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .dot-done {
+            background: #22c55e;
+            color: white;
+        }
+
+        .dot-active {
+            background: #e94560;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .dot-pending {
+            background: #2d3a5a;
+            color: #556688;
+        }
+
+        .step-label-done {
+            color: #86efac;
+        }
+
+        .step-label-active {
+            color: #e94560;
+        }
+
+        .step-label-pending {
+            color: #556688;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(233, 69, 96, 0);
+            }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .summary-card h2 {
+                font-size: 28px;
+            }
+
+            .summary-card {
+                padding: 16px 14px;
+            }
+
+            .filter-bar {
+                padding: 12px;
+            }
+
+            .complaint-card {
+                padding: 16px;
+            }
+
+            .btn-file-complaint {
+                padding: 12px 28px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Navbar ── -->
+    <nav class="navbar navbar-expand-lg dash-navbar">
+        <div class="container-fluid px-3">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto ms-3">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/user/file-complaint.html">
+                            <i class="fas fa-plus-circle me-1"></i>File Complaint
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-bold" href="/user/complaint-history.html"
+                            style="border-bottom: 2px solid white;">
+                            <i class="fas fa-list me-1"></i>My Complaints
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/user/track-status.html">
+                            <i class="fas fa-search me-1"></i>Track FIR
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/user/profile.html">
+                            <i class="fas fa-user me-1"></i>Profile
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+                    <span class="text-white fw-bold" id="welcomeUser"></span>
+                    <button class="btn btn-sm btn-outline-light" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <!-- Page Title -->
+        <div class="mb-4">
+            <h4 class="fw-bold mb-1" style="color:white;">
+                <i class="fas fa-folder-open me-2" style="color:#e94560;"></i>My Complaints
+            </h4>
+            <p style="color:#8899aa;" class="mb-0">View and track all your filed complaints</p>
+        </div>
+
+        <!-- ✅ Summary Cards with correct classes -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="summary-card card-blue">
+                    <h2 id="totalCount">0</h2>
+                    <p><i class="fas fa-file-alt me-1"></i>Total Filed</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="summary-card card-orange">
+                    <h2 id="activeCount">0</h2>
+                    <p><i class="fas fa-spinner me-1"></i>In Progress</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="summary-card card-green">
+                    <h2 id="closedCount">0</h2>
+                    <p><i class="fas fa-check-circle me-1"></i>Cases Closed</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="summary-card card-red">
+                    <h2 id="submittedCount">0</h2>
+                    <p><i class="fas fa-clock me-1"></i>Pending</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar mb-4">
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-4">
+                    <input type="text" id="searchInput" class="form-control"
+                        placeholder="🔍  Search by title or location..." />
+                </div>
+                <div class="col-6 col-md-3">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="Submitted">Submitted</option>
+                        <option value="FIR Filed">FIR Filed</option>
+                        <option value="Criminal Identified">Criminal Identified</option>
+                        <option value="Criminal Caught">Criminal Caught</option>
+                        <option value="Case Closed">Case Closed</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select id="sortFilter" class="form-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2">
+                    <button class="btn btn-outline-danger w-100" onclick="resetFilters()">
+                        <i class="fas fa-undo me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaints List -->
+        <div id="complaintsContainer">
+            <div class="loading-state">
+                <i class="fas fa-spinner fa-spin fa-2x mb-3" style="color:#e94560;"></i>
+                <p>Loading your complaints...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Detail Modal ── -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-alt me-2 text-danger"></i>Complaint Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+                <div class="modal-footer">
+                    <a href="/user/track-status.html" class="btn btn-primary-cg px-4">
+                        <i class="fas fa-search me-1"></i>Full Track View
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) window.location.href = '/user/login.html';
+        document.getElementById('welcomeUser').textContent = '👋 ' + (user.name || 'User');
+
+        let allComplaints = [];
+        const statusOrder = ['Submitted', 'FIR Filed', 'Criminal Identified', 'Criminal Caught', 'Case Closed'];
+
+        function getStatusClass(status) {
+            return {
+                'Submitted': 'status-submitted', 'FIR Filed': 'status-fir',
+                'Criminal Identified': 'status-identified', 'Criminal Caught': 'status-caught',
+                'Case Closed': 'status-closed'
+            }[status] || 'status-submitted';
+        }
+
+        function getStatusIcon(status) {
+            return {
+                'Submitted': 'fa-clock', 'FIR Filed': 'fa-file-contract',
+                'Criminal Identified': 'fa-user-secret', 'Criminal Caught': 'fa-handcuffs',
+                'Case Closed': 'fa-check-circle'
+            }[status] || 'fa-clock';
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                + ' ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ── Load Complaints ──────────────────────────
+        async function loadComplaints() {
+            try {
+                const res = await fetch('/api/complaints/my', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.status === 401) { logout(); return; }
+                allComplaints = await res.json();
+                updateSummary(allComplaints);
+                renderComplaints(allComplaints);
+            } catch (err) {
+                document.getElementById('complaintsContainer').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <h5>Connection Error</h5>
+          <p>Cannot connect to server.<br/>Make sure <code>node server.js</code> is running.</p>
+        </div>`;
+            }
+        }
+
+        // ── Summary ──────────────────────────────────
+        function updateSummary(data) {
+            document.getElementById('totalCount').textContent = data.length;
+            document.getElementById('closedCount').textContent = data.filter(c => c.status === 'Case Closed').length;
+            document.getElementById('submittedCount').textContent = data.filter(c => c.status === 'Submitted').length;
+            document.getElementById('activeCount').textContent = data.filter(c =>
+                ['FIR Filed', 'Criminal Identified', 'Criminal Caught'].includes(c.status)).length;
+        }
+
+        // ── Render Complaint Cards ───────────────────
+        function renderComplaints(data) {
+            const container = document.getElementById('complaintsContainer');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <h5>No Complaints Found</h5>
+          <p>You haven't filed any complaints yet.<br/>Click below to get started.</p>
+          <a href="/user/file-complaint.html" class="btn-file-complaint">
+            <i class="fas fa-plus-circle me-2"></i>File Your First Complaint
+          </a>
+        </div>`;
+                return;
+            }
+
+            container.innerHTML = `<div class="row g-3">${data.map(c => `
+      <div class="col-12 col-md-6">
+        <div class="complaint-card">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="complaint-id">
+              <i class="fas fa-hashtag me-1"></i>${c._id.slice(-8).toUpperCase()}
+            </span>
+            <span class="status-badge ${getStatusClass(c.status)}">
+              <i class="fas ${getStatusIcon(c.status)} me-1"></i>${c.status}
+            </span>
+          </div>
+          <h6 class="complaint-title mb-1">${c.title}</h6>
+          <p class="complaint-desc mb-2">
+            ${c.description.substring(0, 90)}${c.description.length > 90 ? '...' : ''}
+          </p>
+          <p class="complaint-meta mb-3">
+            <i class="fas fa-map-marker-alt me-1" style="color:#e94560;"></i>${c.location}
+          </p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="complaint-meta">
+              <i class="fas fa-calendar me-1"></i>${formatDate(c.createdAt)}
+            </span>
+            <button class="btn-view" onclick="showDetail('${c._id}')">
+              <i class="fas fa-eye me-1"></i>View
+            </button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+        }
+
+        // ── Detail Modal ─────────────────────────────
+        function showDetail(id) {
+            const c = allComplaints.find(x => x._id === id);
+            if (!c) return;
+            const currentIndex = statusOrder.indexOf(c.status);
+            const timeline = statusOrder.map((step, i) => {
+                let dc = 'dot-pending', lc = 'step-label-pending', ic = 'fa-circle';
+                if (i < currentIndex) { dc = 'dot-done'; lc = 'step-label-done'; ic = 'fa-check'; }
+                if (i === currentIndex) { dc = 'dot-active'; lc = 'step-label-active'; ic = 'fa-circle-dot'; }
+                return `<div class="timeline-step">
+        <div class="timeline-dot ${dc}"><i class="fas ${ic}"></i></div>
+        <span class="${lc}">${step}</span>
+      </div>`;
+            }).join('');
+
+            document.getElementById('modalBody').innerHTML = `
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Complaint ID</span>
+        <span class="info-value">#${c._id.slice(-8).toUpperCase()}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Title</span>
+        <span class="info-value">${c.title}</span>
+      </div>
+      <div class="info-row">
+        <div class="info-label mb-1">Description</div>
+        <div class="info-value">${c.description}</div>
+      </div>
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Location</span>
+        <span class="info-value">${c.location}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Assigned Station</span>
+        <span class="info-value">${c.assignedStation?.name || 'Being assigned...'}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Assigned Officer</span>
+        <span class="info-value">${c.assignedOfficer?.name || 'Being assigned...'}</span>
+      </div>
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Filed On</span>
+        <span class="info-value">${formatDate(c.createdAt)}</span>
+      </div>
+      ${c.evidenceFile ? `
+      <div class="info-row d-flex justify-content-between">
+        <span class="info-label">Evidence</span>
+        <a href="/${c.evidenceFile}" target="_blank" style="color:#e94560;">
+          <i class="fas fa-paperclip me-1"></i>View Evidence
+        </a>
+      </div>` : ''}
+      <div class="mt-4">
+        <p class="info-label mb-3">
+          <i class="fas fa-list-check me-1"></i>CASE PROGRESS
+        </p>
+        <div>${timeline}</div>
+      </div>`;
+
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        // ── Filters ──────────────────────────────────
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+            let filtered = allComplaints.filter(c => {
+                const ms = !search || c.title.toLowerCase().includes(search) || c.location.toLowerCase().includes(search);
+                const mv = !status || c.status === status;
+                return ms && mv;
+            });
+            filtered.sort((a, b) => sort === 'newest'
+                ? new Date(b.createdAt) - new Date(a.createdAt)
+                : new Date(a.createdAt) - new Date(b.createdAt));
+            renderComplaints(filtered);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('sortFilter').value = 'newest';
+            renderComplaints(allComplaints);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/user/login.html';
+        }
+
+        loadComplaints();
+    </script>
+</body>
+
+</html>

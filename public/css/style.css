@@ -1,0 +1,347 @@
+/* ═══════════════════════════════════════════
+   CRIME GATE — Global Responsive Stylesheet
+   Applied to ALL pages
+═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+}
+
+/* ── Scrollbar ───────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1a1a2e; }
+::-webkit-scrollbar-thumb { background: #e94560; border-radius: 10px; }
+
+/* ── Root Colors ─────────────────────────── */
+:root {
+  --primary:   #0f3460;
+  --accent:    #e94560;
+  --dark:      #1a1a2e;
+  --darker:    #0d1117;
+  --card-dark: #161b2e;
+  --text-muted:#8899aa;
+}
+
+/* ════════════════════════════════════════════
+   NAVBAR
+════════════════════════════════════════════ */
+.cg-navbar {
+  background: rgba(10,15,40,0.97);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0; z-index: 999;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+.cg-navbar .navbar-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: white !important;
+}
+.cg-navbar .navbar-brand span { color: var(--accent); }
+
+.nav-btn {
+  background: linear-gradient(135deg, var(--accent), var(--primary));
+  border: none; color: white;
+  padding: 7px 18px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.3s;
+  display: inline-block;
+}
+.nav-btn:hover { opacity: 0.85; color: white; transform: scale(1.04); }
+.nav-btn-outline {
+  background: white; color: var(--primary) !important;
+  padding: 7px 18px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: 0.3s;
+  display: inline-block;
+}
+.nav-btn-outline:hover { background: #eee; }
+
+/* ════════════════════════════════════════════
+   AUTH PAGES (Login / Register)
+════════════════════════════════════════════ */
+.auth-body {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.auth-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  width: 100%;
+  max-width: 480px;
+}
+.auth-card-header {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 16px 16px 0 0 !important;
+  padding: 28px 24px;
+  text-align: center;
+  color: white;
+}
+.auth-card-header h3 { font-size: 24px; font-weight: 800; margin: 0; }
+.auth-card-header p  { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
+.auth-card-body { padding: 28px 24px; }
+
+.btn-auth {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none; color: white;
+  padding: 12px; width: 100%;
+  border-radius: 10px;
+  font-weight: 700; font-size: 15px;
+  transition: 0.3s; cursor: pointer;
+}
+.btn-auth:hover { opacity: 0.9; transform: translateY(-2px); color: white; }
+
+/* ════════════════════════════════════════════
+   DASHBOARD PAGES (Complaint, History etc.)
+════════════════════════════════════════════ */
+.dash-body {
+  background: linear-gradient(135deg, #1a1a2e, #0d1117);
+  min-height: 100vh;
+}
+.dash-navbar {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  padding: 12px 20px;
+}
+.dash-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.1);
+  border: none;
+  padding: 28px;
+}
+.dash-card-dark {
+  background: var(--card-dark);
+  border-radius: 16px;
+  border: 1px solid #222d45;
+  padding: 24px;
+}
+.btn-dash {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border: none; color: white;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+.btn-dash:hover { opacity: 0.9; color: white; transform: translateY(-2px); }
+
+/* Status Badges */
+.badge-submitted        { background: #6c757d; }
+.badge-fir-filed        { background: #0d6efd; }
+.badge-identified       { background: #fd7e14; }
+.badge-caught           { background: #dc3545; }
+.badge-closed           { background: #198754; }
+
+/* ════════════════════════════════════════════
+   HOME PAGE
+════════════════════════════════════════════ */
+.hero-section {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(10,15,40,0.78), rgba(10,15,40,0.88)),
+    url('https://images.unsplash.com/photo-1589578228447-e1a4e481c6c8?w=1600&auto=format&fit=crop')
+    center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 60px 0;
+}
+.hero-section h1 { font-size: 52px; font-weight: 800; line-height: 1.2; }
+.hero-section h1 span { color: var(--accent); }
+.hero-section p  { font-size: 17px; color: #ccc; }
+
+.btn-hero {
+  background: linear-gradient(135deg, var(--accent), #c23152);
+  border: none; color: white;
+  padding: 13px 32px;
+  border-radius: 30px; font-size: 15px; font-weight: 700;
+  text-decoration: none; transition: 0.3s; display: inline-block;
+}
+.btn-hero:hover { transform: translateY(-3px); color: white; box-shadow: 0 8px 25px rgba(233,69,96,0.5); }
+.btn-hero-outline {
+  border: 2px solid white; color: white;
+  padding: 11px 28px; border-radius: 30px;
+  font-size: 15px; font-weight: 600;
+  text-decoration: none; transition: 0.3s; display: inline-block;
+}
+.btn-hero-outline:hover { background: white; color: var(--dark); }
+
+.stats-bar {
+  background: linear-gradient(135deg, var(--primary), var(--dark));
+  padding: 28px 0;
+}
+.stat-item h3 { font-size: 34px; font-weight: 800; color: var(--accent); margin: 0; }
+.stat-item p  { font-size: 13px; color: #aaa; margin: 0; }
+
+.step-card {
+  background: white; border-radius: 16px;
+  padding: 30px 20px; text-align: center;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+  border-top: 4px solid var(--accent);
+  height: 100%; transition: 0.3s;
+}
+.step-card:hover { transform: translateY(-8px); }
+.step-icon {
+  width: 65px; height: 65px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; font-size: 26px; color: white;
+}
+.feature-card {
+  background: var(--card-dark); border-radius: 16px;
+  padding: 28px; border: 1px solid #222d45;
+  transition: 0.3s; height: 100%;
+}
+.feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+.feature-card h5 { color: white; font-weight: 700; }
+.feature-card p  { color: var(--text-muted); font-size: 14px; }
+
+.module-card {
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.15);
+  transition: 0.3s; text-decoration: none; display: block;
+}
+.module-card:hover { transform: translateY(-8px); }
+.module-img { width: 100%; height: 180px; object-fit: cover; }
+.module-body { padding: 18px; color: white; }
+
+.cta-section {
+  background:
+    linear-gradient(rgba(15,52,96,0.92), rgba(233,69,96,0.88)),
+    url('https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=1400&auto=format&fit=crop')
+    center/cover no-repeat;
+  padding: 90px 0; color: white; text-align: center;
+}
+.cta-section h2 { font-size: 38px; font-weight: 800; }
+
+footer { background: #080c1a; color: #aaa; padding: 50px 0 20px; }
+footer h5 { color: white; font-weight: 700; }
+footer a  { color: #aaa; text-decoration: none; font-size: 14px; }
+footer a:hover { color: var(--accent); }
+.footer-bottom {
+  border-top: 1px solid #161b2e;
+  margin-top: 30px; padding-top: 18px;
+  text-align: center; font-size: 13px;
+}
+.social-btn {
+  width: 36px; height: 36px; background: #161b2e;
+  border-radius: 50%; display: inline-flex;
+  align-items: center; justify-content: center;
+  color: white; font-size: 13px; margin-right: 6px;
+  transition: 0.3s; text-decoration: none;
+}
+.social-btn:hover { background: var(--accent); color: white; }
+
+/* ════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+════════════════════════════════════════════ */
+
+/* ── Tablet (max 992px) ──────────────────── */
+@media (max-width: 992px) {
+  .hero-section h1 { font-size: 38px; }
+  .hero-section p  { font-size: 15px; }
+  .cta-section h2  { font-size: 30px; }
+  .stat-item h3    { font-size: 28px; }
+}
+
+/* ── Mobile (max 768px) ──────────────────── */
+@media (max-width: 768px) {
+  /* Hero */
+  .hero-section      { padding: 50px 0; text-align: center; }
+  .hero-section h1   { font-size: 30px; }
+  .hero-section p    { font-size: 14px; }
+  .hero-section .d-flex { justify-content: center !important; }
+
+  /* Buttons */
+  .btn-hero, .btn-hero-outline { padding: 10px 22px; font-size: 14px; }
+
+  /* Navbar */
+  .cg-navbar { padding: 10px 15px; }
+  .cg-navbar .navbar-brand { font-size: 18px; }
+  .nav-btn, .nav-btn-outline { padding: 6px 14px; font-size: 13px; }
+
+  /* Auth cards */
+  .auth-card-body { padding: 20px 16px; }
+  .auth-card-header { padding: 22px 16px; }
+  .auth-card-header h3 { font-size: 20px; }
+
+  /* Stats */
+  .stat-item h3 { font-size: 24px; }
+  .stat-item p  { font-size: 12px; }
+
+  /* Step & feature cards */
+  .step-card   { padding: 22px 15px; }
+  .feature-card{ padding: 20px; }
+
+  /* Module images */
+  .module-img  { height: 150px; }
+
+  /* Dashboard */
+  .dash-card   { padding: 20px 16px; }
+
+  /* CTA */
+  .cta-section         { padding: 60px 0; }
+  .cta-section h2      { font-size: 24px; }
+  .cta-section p       { font-size: 15px; }
+  .cta-section .d-flex { flex-direction: column; align-items: center; }
+
+  /* Footer */
+  footer { padding: 40px 0 16px; }
+}
+
+/* ── Small Mobile (max 480px) ────────────── */
+@media (max-width: 480px) {
+  .hero-section h1 { font-size: 26px; }
+  .auth-card { border-radius: 12px; }
+  .dash-card { border-radius: 12px; padding: 16px 12px; }
+  .step-icon { width: 55px; height: 55px; font-size: 22px; }
+}
+
+
+/* ── Mobile Navbar ───────────────────────── */
+.navbar-toggler:focus { box-shadow: none; }
+.navbar-toggler-icon {
+  filter: invert(1); /* Makes hamburger icon white */
+}
+
+/* Mobile menu dropdown style */
+@media (max-width: 991px) {
+  #mainNavMenu {
+    background: rgba(10,15,40,0.98);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+  #mainNavMenu .nav-link {
+    padding: 10px 5px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  #mainNavMenu .nav-link:last-child {
+    border-bottom: none;
+  }
+  #mainNavMenu .d-flex {
+    padding-top: 12px;
+  }
+  .nav-btn, .nav-btn-outline {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+}

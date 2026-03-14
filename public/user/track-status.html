@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CrimeGate — Track FIR Status</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #0a0f28, #1a1a2e);
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .dash-navbar {
+      background: linear-gradient(135deg, #0f3460, #e94560);
+      padding: 12px 20px;
+    }
+    .navbar-brand { font-size: 20px; font-weight: 800; color: white !important; }
+    .navbar-brand span { color: #ffe0e6; }
+    .navbar-toggler { border-color: rgba(255,255,255,0.4); }
+    .navbar-toggler:focus { box-shadow: none; }
+    .navbar-toggler-icon { filter: invert(1); }
+    @media (max-width: 991px) {
+      .navbar-collapse {
+        background: #0f3460; border-radius: 12px;
+        padding: 14px; margin-top: 10px;
+      }
+    }
+
+    /* ── Search Section ── */
+    .search-section {
+      background: linear-gradient(135deg, #0f3460, #1a1a4e);
+      border-radius: 20px; padding: 32px;
+      border: 1px solid #2d3a5a;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    .search-section h5 { color: white; font-weight: 700; font-size: 20px; }
+
+    .search-input {
+      background: #0d1117 !important;
+      border: 2px solid #2d3a5a !important;
+      color: white !important;
+      border-radius: 12px !important;
+      padding: 14px 18px !important;
+      font-size: 14px !important;
+      transition: 0.3s !important;
+      flex: 1; font-family: monospace !important;
+    }
+    .search-input::placeholder { color: #556688; font-family: 'Poppins', sans-serif !important; }
+    .search-input:focus {
+      border-color: #e94560 !important;
+      box-shadow: 0 0 0 4px rgba(233,69,96,0.15) !important;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, #e94560, #0f3460);
+      border: none; color: white;
+      padding: 14px 28px; border-radius: 12px;
+      font-weight: 700; font-size: 15px;
+      transition: 0.3s; white-space: nowrap; cursor: pointer;
+    }
+    .btn-search:hover {
+      opacity: 0.9; color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(233,69,96,0.4);
+    }
+
+    /* ── Quick Select Chips ── */
+    .recent-label { color: #8899aa; font-size: 13px; margin-bottom: 10px; }
+    .recent-chip {
+      background: #161b2e; border: 1px solid #2d3a5a;
+      color: #93c5fd; padding: 6px 14px;
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: 0.2s; display: inline-block;
+      margin: 4px 4px 4px 0;
+    }
+    .recent-chip:hover { border-color: #e94560; color: #e94560; }
+
+    /* ── Auto Refresh Bar ── */
+    .refresh-bar {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 10px; padding: 10px 16px;
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .refresh-bar span { color: #86efac; font-size: 13px; font-weight: 600; }
+    .btn-refresh-manual {
+      background: rgba(34,197,94,0.15); border: 1px solid #22c55e;
+      color: #86efac; padding: 5px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-refresh-manual:hover { background: rgba(34,197,94,0.3); }
+
+    /* ── Result Card ── */
+    .result-card {
+      background: #161b2e; border-radius: 20px;
+      border: 1px solid #2d3a5a; overflow: hidden;
+    }
+    .result-header {
+      background: linear-gradient(135deg, #0f3460, #1e2d5a);
+      padding: 24px 28px; border-bottom: 1px solid #2d3a5a;
+    }
+    .result-body { padding: 28px; }
+
+    /* ── Status Badges ── */
+    .status-badge-lg {
+      padding: 8px 18px; border-radius: 25px;
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 0.5px;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .badge-submitted  { background: rgba(100,116,139,0.25); color: #94a3b8; border: 1px solid #475569; }
+    .badge-fir        { background: rgba(59,130,246,0.25);  color: #93c5fd; border: 1px solid #3b82f6; }
+    .badge-identified { background: rgba(245,158,11,0.25);  color: #fcd34d; border: 1px solid #f59e0b; }
+    .badge-caught     { background: rgba(239,68,68,0.25);   color: #fca5a5; border: 1px solid #ef4444; }
+    .badge-closed     { background: rgba(34,197,94,0.25);   color: #86efac; border: 1px solid #22c55e; }
+
+    /* ── Info Grid ── */
+    .info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 14px; margin-bottom: 24px;
+    }
+    @media (max-width: 576px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-box {
+      background: #0d1117; border-radius: 12px;
+      padding: 14px 16px; border: 1px solid #222d45; transition: 0.2s;
+    }
+    .info-box:hover { border-color: #2d3a5a; }
+    .info-box-label {
+      font-size: 11px; color: #556688;
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
+    }
+    .info-box-value { font-size: 14px; color: white; font-weight: 600; }
+
+    /* ── Vertical Timeline ── */
+    .timeline-section {
+      background: #0d1117; border-radius: 16px;
+      padding: 24px; border: 1px solid #222d45;
+    }
+    .timeline-title {
+      color: #8899aa; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 20px; font-weight: 600;
+    }
+    .v-timeline { position: relative; padding-left: 20px; }
+    .v-timeline::before {
+      content: ''; position: absolute;
+      left: 15px; top: 0; bottom: 0;
+      width: 2px; background: #2d3a5a;
+    }
+    .v-step {
+      position: relative; padding: 0 0 24px 44px;
+      display: flex; align-items: flex-start;
+    }
+    .v-step:last-child { padding-bottom: 0; }
+    .v-dot {
+      position: absolute; left: 0;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; z-index: 1; flex-shrink: 0;
+      border: 2px solid transparent;
+    }
+    .v-dot-done   { background: #22c55e; color: white; border-color: #22c55e; box-shadow: 0 0 12px rgba(34,197,94,0.4); }
+    .v-dot-active { background: #e94560; color: white; border-color: #e94560; box-shadow: 0 0 15px rgba(233,69,96,0.6); animation: glow 1.5s infinite; }
+    .v-dot-pending { background: #1e2640; color: #3a4a6a; border-color: #2d3a5a; }
+    @keyframes glow {
+      0%,100% { box-shadow: 0 0 8px rgba(233,69,96,0.5); }
+      50%      { box-shadow: 0 0 22px rgba(233,69,96,0.9); }
+    }
+    .v-content { padding-top: 4px; }
+    .v-label-done    { color: #86efac; font-weight: 700; font-size: 14px; }
+    .v-label-active  { color: #e94560; font-weight: 800; font-size: 14px; }
+    .v-label-pending { color: #3a4a6a; font-weight: 600; font-size: 14px; }
+    .v-sublabel        { font-size: 12px; color: #556688; margin-top: 3px; }
+    .v-sublabel-active { font-size: 12px; color: #ff8fa3; margin-top: 3px; }
+
+    /* ── Action Buttons ── */
+    .btn-action {
+      background: #1e2640; border: 1px solid #2d3a5a;
+      color: #93c5fd; padding: 9px 18px;
+      border-radius: 10px; font-size: 13px;
+      font-weight: 600; transition: 0.3s; cursor: pointer;
+    }
+    .btn-action:hover { background: #2d3a5a; color: white; }
+
+    .btn-copy {
+      background: #1e2640; border: 1px solid #2d3a5a;
+      color: #93c5fd; padding: 6px 14px;
+      border-radius: 8px; font-size: 12px;
+      font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn-copy:hover { background: #2d3a5a; color: white; }
+    .btn-copy.copied { border-color: #22c55e; color: #86efac; background: rgba(34,197,94,0.1); }
+
+    /* ── State Boxes ── */
+    .state-box { text-align: center; padding: 60px 20px; }
+    .state-icon {
+      width: 90px; height: 90px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 36px;
+      border: 2px dashed #2d3a5a;
+    }
+    .state-icon-default { background: #1e2640; color: #3a4a6a; }
+    .state-icon-error   { background: rgba(239,68,68,0.1); color: #ef4444; border-color: #ef4444; }
+    .state-h { color: #ccd6f6; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+    .state-p { color: #7a8aaa; font-size: 14px; }
+
+    /* ── Input Hint ── */
+    .input-hint { font-size: 11px; color: #556688; margin-top: 6px; }
+    .input-hint span { color: #93c5fd; font-weight: 600; }
+
+    /* ── Toast ── */
+    .toast-cg {
+      position: fixed; bottom: 24px; right: 24px;
+      border-radius: 12px; padding: 14px 20px;
+      font-size: 14px; font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 9999; min-width: 240px;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateY(80px); opacity: 0;
+      transition: 0.4s ease;
+    }
+    .toast-cg.show { transform: translateY(0); opacity: 1; }
+    .toast-success { background: #161b2e; border: 1px solid #22c55e; border-left: 4px solid #22c55e; color: #86efac; }
+    .toast-error   { background: #161b2e; border: 1px solid #ef4444; border-left: 4px solid #ef4444; color: #fca5a5; }
+
+    /* ── Print ── */
+    @media print {
+      .dash-navbar, .search-section, .btn-action, .btn-copy,
+      .refresh-bar, .recent-label, .recent-chip, #bottomBtns { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .result-card { border: 1px solid #ccc !important; box-shadow: none !important; }
+      .result-header { background: #0f3460 !important; -webkit-print-color-adjust: exact; }
+      .info-box { background: #f8f9fa !important; border: 1px solid #ddd !important; }
+      .info-box-value { color: black !important; }
+      .info-box-label { color: #555 !important; }
+      .timeline-section { background: #f8f9fa !important; border: 1px solid #ccc !important; }
+      .v-label-done, .v-label-active { color: #198754 !important; }
+      .v-label-pending { color: #999 !important; }
+      .v-dot-done   { background: #198754 !important; -webkit-print-color-adjust: exact; }
+      .v-dot-active { background: #dc3545 !important; animation: none !important; -webkit-print-color-adjust: exact; }
+      .v-dot-pending { background: #ddd !important; -webkit-print-color-adjust: exact; }
+    }
+
+    @media (max-width: 768px) {
+      .search-section { padding: 20px; }
+      .result-header  { padding: 18px; }
+      .result-body    { padding: 18px; }
+      .btn-search     { padding: 12px 20px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar navbar-expand-lg dash-navbar">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand" href="/">
+      <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+    </a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto ms-3">
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/file-complaint.html">
+            <i class="fas fa-plus-circle me-1"></i>File Complaint
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/complaint-history.html">
+            <i class="fas fa-list me-1"></i>My Complaints
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white fw-bold" href="/user/track-status.html"
+             style="border-bottom: 2px solid white;">
+            <i class="fas fa-search me-1"></i>Track FIR
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" href="/user/profile.html">
+            <i class="fas fa-user me-1"></i>Profile
+          </a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+        <span class="text-white fw-bold" id="welcomeUser"></span>
+        <button class="btn btn-sm btn-outline-light" onclick="logout()">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+
+  <!-- Page Title -->
+  <div class="mb-4">
+    <h4 class="fw-bold mb-1" style="color:white;">
+      <i class="fas fa-search-location me-2" style="color:#e94560;"></i>Track FIR Status
+    </h4>
+    <p style="color:#8899aa;" class="mb-0">
+      Enter your Complaint ID to see real-time case progress
+    </p>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section mb-4">
+    <h5 class="mb-1">
+      <i class="fas fa-hashtag me-2" style="color:#e94560;"></i>Enter Complaint ID
+    </h5>
+    <p style="color:#8899aa; font-size:13px;" class="mb-3">
+      Find your ID in
+      <a href="/user/complaint-history.html" style="color:#93c5fd;">My Complaints</a> page
+    </p>
+
+    <div class="d-flex gap-2 flex-column flex-sm-row">
+      <input type="text" id="complaintIdInput"
+             class="form-control search-input"
+             placeholder="Paste your full 24-character Complaint ID..."
+             maxlength="30" autocomplete="off" spellcheck="false"/>
+      <button class="btn-search" onclick="trackComplaint()">
+        <i class="fas fa-search me-2"></i>Track Now
+      </button>
+    </div>
+
+    <p class="input-hint">
+      <i class="fas fa-info-circle me-1"></i>
+      Complaint IDs are <span>24 characters</span> long
+      (e.g. <span>507f1f77bcf86cd799439011</span>).
+    </p>
+
+    <div id="recentSection" class="mt-3 d-none">
+      <p class="recent-label">
+        <i class="fas fa-history me-1"></i>Your recent complaints — click to track:
+      </p>
+      <div id="recentChips"></div>
+    </div>
+  </div>
+
+  <!-- Auto Refresh Bar -->
+  <div class="refresh-bar mb-3 d-none" id="refreshBar">
+    <span>
+      <i class="fas fa-sync-alt me-2"></i>
+      Auto-refreshing every 30s &nbsp;·&nbsp;
+      Last updated: <span id="lastUpdated">just now</span>
+    </span>
+    <button class="btn-refresh-manual" onclick="manualRefresh()">
+      <i class="fas fa-rotate-right me-1"></i>Refresh Now
+    </button>
+  </div>
+
+  <!-- Result Area -->
+  <div id="resultArea">
+    <div class="state-box">
+      <div class="state-icon state-icon-default">
+        <i class="fas fa-search"></i>
+      </div>
+      <h5 class="state-h">Enter a Complaint ID</h5>
+      <p class="state-p">
+        Paste your full Complaint ID above and click <strong>Track Now</strong><br/>
+        to see live case status and investigation progress.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-cg" id="toastEl">
+  <span id="toastIcon"></span>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  // ── Auth Guard ──────────────────────────────────
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!token) window.location.href = '/user/login.html';
+  document.getElementById('welcomeUser').textContent = '👋 ' + (user.name || 'User');
+
+  // ══════════════════════════════════════════════
+  // ✅ FIX 1: Status normalizer
+  //    Backend stores: submitted / fir_filed / identified / caught / closed
+  //    Frontend shows: Submitted / FIR Filed / Criminal Identified / etc.
+  // ══════════════════════════════════════════════
+  const STATUS_MAP = {
+    'submitted':   'Submitted',
+    'fir_filed':   'FIR Filed',
+    'identified':  'Criminal Identified',
+    'caught':      'Criminal Caught',
+    'closed':      'Case Closed',
+    // already-normalized passthrough
+    'Submitted':            'Submitted',
+    'FIR Filed':            'FIR Filed',
+    'Criminal Identified':  'Criminal Identified',
+    'Criminal Caught':      'Criminal Caught',
+    'Case Closed':          'Case Closed'
+  };
+
+  function normalizeStatus(raw) {
+    return STATUS_MAP[raw] || raw || 'Submitted';
+  }
+
+  // ── Display constants ───────────────────────────
+  const statusOrder = [
+    'Submitted', 'FIR Filed', 'Criminal Identified', 'Criminal Caught', 'Case Closed'
+  ];
+
+  const statusSubLabel = {
+    'Submitted':           'Complaint received, awaiting review',
+    'FIR Filed':           'FIR officially registered at police station',
+    'Criminal Identified': 'Suspect has been identified by officers',
+    'Criminal Caught':     'Suspect has been apprehended',
+    'Case Closed':         'Case successfully resolved and closed'
+  };
+
+  const statusIconMap = {
+    'Submitted':           'fa-clock',
+    'FIR Filed':           'fa-file-alt',
+    'Criminal Identified': 'fa-user-secret',
+    'Criminal Caught':     'fa-user-lock',
+    'Case Closed':         'fa-check-circle'
+  };
+
+  const statusBadgeClass = {
+    'Submitted':           'badge-submitted',
+    'FIR Filed':           'badge-fir',
+    'Criminal Identified': 'badge-identified',
+    'Criminal Caught':     'badge-caught',
+    'Case Closed':         'badge-closed'
+  };
+
+  let autoRefreshTimer   = null;
+  let currentComplaintId = null;
+
+  // ── Helpers ─────────────────────────────────────
+  function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+      + ' at ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function showToast(type, msg) {
+    const el = document.getElementById('toastEl');
+    el.className = `toast-cg toast-${type} show`;
+    document.getElementById('toastIcon').textContent = type === 'success' ? '✅' : '❌';
+    document.getElementById('toastMsg').textContent  = msg;
+    setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  function safeCopy(text, onSuccess) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(onSuccess).catch(() => fallbackCopy(text, onSuccess));
+    } else {
+      fallbackCopy(text, onSuccess);
+    }
+  }
+
+  function fallbackCopy(text, onSuccess) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); onSuccess(); }
+    catch(e) { showToast('error', 'Copy failed. Please copy manually.'); }
+    document.body.removeChild(ta);
+  }
+
+  function isValidMongoId(id) {
+    return /^[a-fA-F0-9]{24}$/.test(id.trim());
+  }
+
+  // ── Chip color by normalized status ─────────────
+  function getChipColor(rawStatus) {
+    const s = normalizeStatus(rawStatus);
+    return {
+      'Submitted':           '#94a3b8',
+      'FIR Filed':           '#93c5fd',
+      'Criminal Identified': '#fcd34d',
+      'Criminal Caught':     '#fca5a5',
+      'Case Closed':         '#86efac'
+    }[s] || '#94a3b8';
+  }
+
+  // ══════════════════════════════════════════════
+  // ✅ FIX 2: /api/complaints/my returns { complaints:[...] }
+  //    not a plain array — parse correctly
+  // ══════════════════════════════════════════════
+  async function loadRecent() {
+    try {
+      const res = await fetch('/api/complaints/my', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+
+      const data = await res.json();
+
+      // Handle both { complaints: [] } and plain []
+      const complaints = Array.isArray(data) ? data
+        : (data.complaints || data.data || []);
+
+      if (!complaints.length) return;
+
+      document.getElementById('recentChips').innerHTML =
+        complaints.slice(0, 5).map(c => {
+          const displayStatus = normalizeStatus(c.status);
+          return `
+            <span class="recent-chip" onclick="quickSelect('${c._id}')">
+              <i class="fas fa-hashtag me-1"></i>${c._id.slice(-8).toUpperCase()}
+              &nbsp;—&nbsp;${(c.title||'Complaint').substring(0,18)}${(c.title||'').length > 18 ? '...' : ''}
+              &nbsp;<span style="color:${getChipColor(c.status)}; font-size:10px;">
+                ● ${displayStatus}
+              </span>
+            </span>`;
+        }).join('');
+
+      document.getElementById('recentSection').classList.remove('d-none');
+    } catch(e) { /* silent */ }
+  }
+
+  function quickSelect(id) {
+    document.getElementById('complaintIdInput').value = id;
+    trackComplaint();
+  }
+
+  // ── Auto Refresh ─────────────────────────────────
+  function startAutoRefresh(id) {
+    stopAutoRefresh();
+    document.getElementById('refreshBar').classList.remove('d-none');
+    autoRefreshTimer = setInterval(() => fetchAndRender(id, true), 30000);
+  }
+
+  function stopAutoRefresh() {
+    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+    document.getElementById('refreshBar').classList.add('d-none');
+  }
+
+  function manualRefresh() {
+    if (currentComplaintId) fetchAndRender(currentComplaintId, true);
+  }
+
+  // ── Track Complaint ──────────────────────────────
+  async function trackComplaint() {
+    const input = document.getElementById('complaintIdInput').value.trim();
+    if (!input) { showErrorState('Please enter a Complaint ID.'); return; }
+
+    if (!isValidMongoId(input)) {
+      showErrorState(
+        `"${input.toUpperCase()}" is not a valid Complaint ID.<br/>
+         <small style="font-size:13px;">IDs are exactly 24 hex characters.<br/>
+         Click a chip above or copy from My Complaints page.</small>`
+      );
+      return;
+    }
+
+    currentComplaintId = input;
+
+    document.getElementById('resultArea').innerHTML = `
+      <div class="state-box">
+        <div class="state-icon state-icon-default">
+          <i class="fas fa-spinner fa-spin" style="color:#e94560;"></i>
+        </div>
+        <h5 class="state-h">Searching...</h5>
+        <p class="state-p">Fetching complaint details for
+          <strong style="color:#93c5fd;">#${input.slice(-8).toUpperCase()}</strong>
+        </p>
+      </div>`;
+
+    await fetchAndRender(input, false);
+    startAutoRefresh(input);
+  }
+
+  // ── Fetch & Render ───────────────────────────────
+  async function fetchAndRender(id, silent) {
+    try {
+      const res = await fetch(`/api/complaints/track/${id}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) { logout(); return; }
+      if (res.status === 403) {
+        stopAutoRefresh();
+        showErrorState('Access denied. You can only track your own complaints.');
+        return;
+      }
+      if (res.status === 404) {
+        stopAutoRefresh();
+        showErrorState('Complaint not found. Please double-check your ID.');
+        return;
+      }
+      if (!res.ok) {
+        if (!silent) showErrorState('Something went wrong. Please try again.');
+        return;
+      }
+
+      const data = await res.json();
+
+      // ✅ FIX 3: Handle { complaint: {} } or { data: {} } or plain object
+      const c = data.complaint || data.data || data;
+
+      renderResult(c);
+
+      const lu = document.getElementById('lastUpdated');
+      if (lu) {
+        lu.textContent = new Date().toLocaleTimeString('en-IN', {
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+      }
+
+      if (silent) showToast('success', 'Status refreshed successfully');
+
+    } catch(err) {
+      if (!silent) showErrorState('Cannot connect to server. Make sure server is running.');
+    }
+  }
+
+  // ── Render Result ────────────────────────────────
+  function renderResult(c) {
+    // ✅ FIX 4: Normalize status from DB before using
+    const displayStatus = normalizeStatus(c.status);
+    const currentIndex  = statusOrder.indexOf(displayStatus);
+    const safeIndex     = currentIndex === -1 ? 0 : currentIndex;
+    const progressPct   = Math.round(((safeIndex + 1) / statusOrder.length) * 100);
+    const isClosed      = displayStatus === 'Case Closed';
+
+    // ✅ FIX 5: station/officer field names — DB uses c.station & c.officer
+    const stationName  = c.station?.name  || c.assignedStation?.name  || 'Being assigned...';
+    const stationPhone = c.station?.phone || c.assignedStation?.phone || 'N/A';
+    const officerName  = c.officer?.name  || c.assignedOfficer?.name  || 'Being assigned...';
+
+    // Build timeline
+    const timeline = statusOrder.map((step, i) => {
+      let dc = 'v-dot-pending', lc = 'v-label-pending',
+          ic = 'fa-circle',    sl = 'v-sublabel';
+      if (i < safeIndex)   { dc = 'v-dot-done';   lc = 'v-label-done';   ic = 'fa-check'; }
+      if (i === safeIndex) { dc = 'v-dot-active';  lc = 'v-label-active'; ic = statusIconMap[step]; sl = 'v-sublabel-active'; }
+      return `
+        <div class="v-step">
+          <div class="v-dot ${dc}"><i class="fas ${ic}"></i></div>
+          <div class="v-content">
+            <div class="${lc}">${step}</div>
+            <div class="${sl}">${statusSubLabel[step]}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('resultArea').innerHTML = `
+      <div class="result-card">
+
+        <!-- Header -->
+        <div class="result-header">
+          <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+              <p style="color:#93c5fd; font-size:11px; margin:0; letter-spacing:1px; text-transform:uppercase;">
+                Complaint ID
+              </p>
+              <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                <h4 style="color:white; font-weight:800; margin:0; font-family:monospace;">
+                  #${c._id.slice(-8).toUpperCase()}
+                </h4>
+                <button class="btn-copy" id="copyBtn" onclick="copyId('${c._id}')">
+                  <i class="fas fa-copy me-1"></i>Copy ID
+                </button>
+              </div>
+              <p style="color:#8899aa; font-size:13px; margin:4px 0 0;">
+                <i class="fas fa-calendar me-1"></i>Filed on ${formatDate(c.createdAt)}
+              </p>
+            </div>
+            <div class="d-flex flex-column align-items-end gap-2">
+              <span class="status-badge-lg ${statusBadgeClass[displayStatus] || 'badge-submitted'}">
+                <i class="fas ${statusIconMap[displayStatus] || 'fa-clock'}"></i>
+                ${displayStatus}
+              </span>
+              <div style="font-size:12px; color:#8899aa; text-align:right;">
+                Progress: <strong style="color:white; font-size:15px;">${progressPct}%</strong>
+                ${isClosed ? '&nbsp;<i class="fas fa-check-circle" style="color:#22c55e;"></i>' : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mt-3">
+            <div style="background:#0d1117; border-radius:10px; height:8px; overflow:hidden;">
+              <div id="progressFill"
+                   style="height:8px; width:0%; border-radius:10px;
+                          background:linear-gradient(90deg,#e94560,#0f3460);
+                          transition:width 1.2s ease;">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+              <span style="font-size:11px; color:#556688;">Filed</span>
+              <span style="font-size:11px;
+                           color:${isClosed ? '#86efac' : '#556688'};
+                           font-weight:${isClosed ? '700' : '400'};">
+                ${isClosed ? '✅ Closed' : 'Closed'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="result-body">
+          <div class="mb-3">
+            <h6 style="color:white; font-weight:700; margin:0 0 6px; font-size:17px;
+                       overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${c.title || 'Untitled Complaint'}
+            </h6>
+            <p style="color:#7a8aaa; font-size:13px; line-height:1.6; margin:0;">
+              ${c.description || ''}
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 flex-wrap mb-4">
+            <button class="btn-action" onclick="window.print()">
+              <i class="fas fa-print me-1"></i>Print FIR
+            </button>
+            <button class="btn-action" onclick="shareStatus('${c._id}')">
+              <i class="fas fa-share-alt me-1"></i>Share Link
+            </button>
+          </div>
+
+          <!-- Info Grid -->
+          <div class="info-grid">
+            <div class="info-box">
+              <div class="info-box-label"><i class="fas fa-map-marker-alt me-1"></i>Location</div>
+              <div class="info-box-value">${c.location || 'N/A'}</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label"><i class="fas fa-building me-1"></i>Assigned Station</div>
+              <div class="info-box-value">${stationName}</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label"><i class="fas fa-user-shield me-1"></i>Assigned Officer</div>
+              <div class="info-box-value">${officerName}</div>
+            </div>
+            <div class="info-box">
+              <div class="info-box-label"><i class="fas fa-phone me-1"></i>Station Contact</div>
+              <div class="info-box-value">${stationPhone}</div>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="timeline-section mb-4">
+            <p class="timeline-title">
+              <i class="fas fa-tasks me-2"></i>Case Progress Timeline
+            </p>
+            <div class="v-timeline">${timeline}</div>
+          </div>
+
+          <!-- Evidence -->
+          ${c.evidenceFile ? `
+          <div class="mb-4 p-3"
+               style="background:#0d1117; border-radius:12px; border:1px solid #222d45;
+                      display:flex; align-items:center;
+                      justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <span style="color:#8899aa; font-size:13px;">
+              <i class="fas fa-paperclip me-2"></i>Evidence File Attached
+            </span>
+            <a href="/${c.evidenceFile}" target="_blank"
+               style="color:#e94560; font-weight:700; font-size:13px; text-decoration:none;">
+              <i class="fas fa-eye me-1"></i>View Evidence
+            </a>
+          </div>` : ''}
+
+          ${c.remarks ? `
+          <div class="mb-4 p-3"
+               style="background:rgba(245,158,11,0.08); border-radius:12px;
+                      border:1px solid rgba(245,158,11,0.2);">
+            <p style="color:#8899aa; font-size:11px; text-transform:uppercase;
+                      letter-spacing:.8px; margin:0 0 4px; font-weight:600;">
+              <i class="fas fa-comment-alt me-1"></i>Officer Remarks
+            </p>
+            <p style="color:#fcd34d; font-size:13px; margin:0; font-weight:600;">
+              ${c.remarks}
+            </p>
+          </div>` : ''}
+
+          <!-- Bottom Buttons -->
+          <div class="d-flex gap-2 flex-wrap" id="bottomBtns">
+            <a href="/user/complaint-history.html"
+               style="background:#1e2640; border:1px solid #2d3a5a; color:#93c5fd;
+                      padding:10px 20px; border-radius:10px; font-size:13px;
+                      font-weight:600; text-decoration:none;">
+              <i class="fas fa-arrow-left me-1"></i>Back to History
+            </a>
+            <a href="/user/file-complaint.html"
+               style="background:linear-gradient(135deg,#e94560,#0f3460);
+                      color:white; padding:10px 20px; border-radius:10px;
+                      font-size:13px; font-weight:600; text-decoration:none;">
+              <i class="fas fa-plus me-1"></i>File New Complaint
+            </a>
+          </div>
+        </div>
+      </div>`;
+
+    // Animate progress bar
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        const fill = document.getElementById('progressFill');
+        if (fill) fill.style.width = progressPct + '%';
+      }, 80);
+    });
+  }
+
+  function copyId(id) {
+    safeCopy(id, () => {
+      const btn = document.getElementById('copyBtn');
+      if (btn) {
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fas fa-copy me-1"></i>Copy ID';
+          btn.classList.remove('copied');
+        }, 2000);
+      }
+    });
+  }
+
+  function shareStatus(id) {
+    const url = `${window.location.origin}/user/track-status.html?id=${id}`;
+    safeCopy(url, () => showToast('success', 'Track link copied to clipboard!'));
+  }
+
+  function showErrorState(msg) {
+    stopAutoRefresh();
+    document.getElementById('resultArea').innerHTML = `
+      <div class="state-box">
+        <div class="state-icon state-icon-error">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h5 class="state-h">Not Found</h5>
+        <p class="state-p">${msg}</p>
+      </div>`;
+  }
+
+  function logout() {
+    stopAutoRefresh();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/user/login.html';
+  }
+
+  // ── Event listeners ──────────────────────────────
+  document.getElementById('complaintIdInput')
+    .addEventListener('keypress', e => { if (e.key === 'Enter') trackComplaint(); });
+
+  document.getElementById('complaintIdInput')
+    .addEventListener('paste', () => {
+      setTimeout(() => {
+        const inp = document.getElementById('complaintIdInput');
+        inp.value = inp.value.trim();
+      }, 10);
+    });
+
+  // ── Auto-track from URL param ────────────────────
+  const urlId = new URLSearchParams(window.location.search).get('id');
+  if (urlId) {
+    document.getElementById('complaintIdInput').value = urlId.trim();
+    trackComplaint();
+  }
+
+  loadRecent();
+</script>
+</body>
+</html>

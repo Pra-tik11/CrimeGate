@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CrimeGate — Online Crime Reporting Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --red:    #e94560;
+      --blue:   #0f3460;
+      --dark:   #060d1f;
+      --card:   #0d1525;
+      --border: #1e2d4a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--dark); color: white; overflow-x: hidden; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
+
+    /* ══════════════════════════════
+       NAVBAR
+    ══════════════════════════════ */
+    .navbar-cg {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 14px 0;
+      background: rgba(6,13,31,0.6);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: 0.3s;
+    }
+    .navbar-cg.scrolled {
+      background: rgba(6,13,31,0.97);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.6);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar-brand-cg {
+      font-size: 22px; font-weight: 900; color: white;
+      text-decoration: none; letter-spacing: -0.5px;
+    }
+    .navbar-brand-cg span { color: var(--red); }
+
+    .nav-link-cg {
+      color: rgba(255,255,255,0.7) !important; font-weight: 600;
+      font-size: 14px; transition: 0.2s; padding: 6px 14px !important;
+      border-radius: 8px; text-decoration: none; display: inline-block;
+    }
+    .nav-link-cg:hover { color: white !important; background: rgba(255,255,255,0.07); }
+
+    .btn-nav-login {
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(255,255,255,0.2);
+      color: white; padding: 7px 18px;
+      border-radius: 9px; font-weight: 700;
+      font-size: 13px; cursor: pointer; transition: 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-nav-login:hover { border-color: var(--red); color: white; background: rgba(233,69,96,0.1); }
+
+    .btn-nav-register {
+      background: linear-gradient(135deg, var(--red), #c23152);
+      border: none; color: white; padding: 7px 20px;
+      border-radius: 9px; font-weight: 700;
+      font-size: 13px; cursor: pointer; transition: 0.3s;
+      text-decoration: none; display: inline-block;
+      box-shadow: 0 4px 15px rgba(233,69,96,0.3);
+    }
+    .btn-nav-register:hover { opacity: 0.9; transform: translateY(-1px); color: white; }
+
+    .navbar-toggler-cg {
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2);
+      color: white; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+    }
+    .mobile-menu {
+      display: none; background: rgba(6,13,31,0.97);
+      border-top: 1px solid var(--border);
+      padding: 16px; flex-direction: column; gap: 8px;
+      backdrop-filter: blur(20px);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px;
+      font-weight: 600; padding: 10px 14px; border-radius: 10px; transition: 0.2s;
+    }
+    .mobile-menu a:hover { background: rgba(255,255,255,0.05); color: white; }
+
+    @media (max-width: 992px)  { .desktop-nav { display: none !important; } }
+    @media (min-width: 993px)  { .navbar-toggler-cg { display: none !important; } }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      position: relative; padding: 120px 0 80px;
+      overflow: hidden;
+      background-image: url('https://images.unsplash.com/photo-1589578228447-e1a4e481c6c8?w=1920&auto=format&fit=crop&q=80');
+      background-size: cover; background-position: center top;
+      background-repeat: no-repeat; background-attachment: fixed;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 0;
+      background: linear-gradient(135deg,rgba(6,13,31,0.92) 0%,rgba(6,13,31,0.80) 40%,rgba(15,52,96,0.70) 70%,rgba(6,13,31,0.88) 100%);
+    }
+    .hero-glow {
+      position: absolute; bottom: -100px; left: -100px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(233,69,96,0.12) 0%, transparent 65%);
+      z-index: 0; pointer-events: none;
+      animation: glowPulse 5s ease-in-out infinite;
+    }
+    @keyframes glowPulse { 0%,100%{opacity:0.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+    .bg-grid {
+      position: absolute; inset: 0; z-index: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(233,69,96,0.12); border: 1px solid rgba(233,69,96,0.3);
+      color: #ff8fa3; padding: 6px 18px; border-radius: 50px;
+      font-size: 12px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 22px;
+      animation: fadeDown 0.6s ease both; backdrop-filter: blur(10px);
+    }
+    .hero-badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red); animation: blink 1.5s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .hero-title {
+      font-size: clamp(36px,6vw,74px); font-weight: 900; line-height: 1.08;
+      margin-bottom: 24px; animation: fadeUp 0.7s ease 0.1s both;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.5);
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg,var(--red),#ff6b8a);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-title .highlight2 {
+      background: linear-gradient(135deg,#93c5fd,#60a5fa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: 17px; color: rgba(255,255,255,0.75); line-height: 1.75;
+      max-width: 540px; margin-bottom: 36px; font-weight: 400;
+      animation: fadeUp 0.7s ease 0.2s both; text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp 0.7s ease 0.3s both; }
+
+    .btn-hero-primary {
+      background: linear-gradient(135deg,var(--red),#c23152);
+      border: none; color: white; padding: 15px 32px;
+      border-radius: 14px; font-weight: 800; font-size: 15px;
+      cursor: pointer; transition: 0.35s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 9px;
+      box-shadow: 0 8px 30px rgba(233,69,96,0.45); position: relative; overflow: hidden;
+    }
+    .btn-hero-primary::before {
+      content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent); transition:0.5s;
+    }
+    .btn-hero-primary:hover { transform:translateY(-3px); color:white; box-shadow:0 14px 40px rgba(233,69,96,0.55); }
+    .btn-hero-primary:hover::before { left:100%; }
+
+    .btn-hero-secondary {
+      background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.25);
+      color: white; padding: 15px 32px; border-radius: 14px; font-weight: 700; font-size: 15px;
+      cursor: pointer; transition: 0.3s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 9px; backdrop-filter: blur(10px);
+    }
+    .btn-hero-secondary:hover { background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.4); color:white; transform:translateY(-2px); }
+
+    .hero-stats { display:flex; gap:32px; margin-top:44px; flex-wrap:wrap; animation:fadeUp 0.7s ease 0.4s both; }
+    .hstat { display:flex; flex-direction:column; }
+    .hstat-num { font-size:26px; font-weight:900; color:white; line-height:1; }
+    .hstat-lbl { font-size:11px; color:rgba(255,255,255,0.45); font-weight:600; margin-top:3px; text-transform:uppercase; letter-spacing:0.5px; }
+    .hstat-divider { width:1px; background:rgba(255,255,255,0.12); height:40px; align-self:center; }
+
+    .hero-visual { position:relative; z-index:1; animation:fadeLeft 0.8s ease 0.3s both; }
+    .hero-card-main {
+      background:rgba(13,21,37,0.85); border:1px solid rgba(255,255,255,0.1);
+      border-radius:22px; padding:24px; box-shadow:0 30px 80px rgba(0,0,0,0.6);
+      position:relative; overflow:hidden; backdrop-filter:blur(20px);
+    }
+    .hero-card-main::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--red),var(--blue));
+    }
+    .portal-preview-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+    .portal-preview-head h6 { color:white; font-weight:800; font-size:14px; margin:0; }
+    .live-dot { display:flex; align-items:center; gap:5px; font-size:11px; color:#86efac; font-weight:700; }
+    .live-dot::before { content:''; width:7px; height:7px; border-radius:50%; background:#22c55e; animation:blink 1s infinite; }
+
+    .mini-complaint {
+      background:rgba(6,13,31,0.7); border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px; padding:13px 14px; margin-bottom:10px;
+      display:flex; align-items:center; gap:12px; transition:0.2s;
+    }
+    .mini-complaint:hover { border-color:rgba(233,69,96,0.3); }
+    .mini-c-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .mini-c-title { font-size:12px; color:white; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mini-c-sub { font-size:11px; color:#556688; margin-top:2px; }
+    .mini-pill { margin-left:auto; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+
+    .float-card {
+      position:absolute; background:rgba(13,21,37,0.9); border:1px solid rgba(255,255,255,0.12);
+      border-radius:14px; padding:12px 16px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      animation:floatCard 4s ease-in-out infinite; z-index:2; backdrop-filter:blur(10px);
+    }
+    .float-card-1 { top:-18px; right:-18px; animation-delay:0s; }
+    .float-card-2 { bottom:-18px; left:-18px; animation-delay:2s; }
+    @keyframes floatCard { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .fc-num { font-size:20px; font-weight:900; color:white; }
+    .fc-lbl { font-size:10px; color:#556688; font-weight:600; text-transform:uppercase; }
+
+    /* ══════════════════════════════
+       STATS BAR
+    ══════════════════════════════ */
+    .stats-section {
+      position:relative; padding:70px 0; overflow:hidden;
+      background-image:url('https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center; background-attachment:fixed;
+    }
+    .stats-section::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(6,13,31,0.93),rgba(15,52,96,0.90)); z-index:0;
+    }
+    .stats-section .container { position:relative; z-index:1; }
+    .big-stat { text-align:center; padding:20px; }
+    .big-stat-num {
+      font-size:clamp(36px,5vw,56px); font-weight:900; line-height:1;
+      background:linear-gradient(135deg,var(--red),#ff8fa3);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .big-stat-lbl { font-size:13px; color:rgba(255,255,255,0.5); font-weight:600; margin-top:8px; text-transform:uppercase; letter-spacing:0.5px; }
+    .big-stat-divider { width:1px; background:rgba(255,255,255,0.1); height:70px; align-self:center; }
+
+    /* ══════════════════════════════
+       SECTION COMMON
+    ══════════════════════════════ */
+    section { padding: 90px 0; }
+    .section-label {
+      display:inline-flex; align-items:center; gap:8px;
+      background:rgba(233,69,96,0.08); border:1px solid rgba(233,69,96,0.2);
+      color:var(--red); padding:5px 16px; border-radius:50px; font-size:12px;
+      font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:16px;
+    }
+    .section-title { font-size:clamp(28px,4vw,44px); font-weight:900; line-height:1.2; margin-bottom:14px; }
+    .section-sub { font-size:16px; color:#8899aa; max-width:520px; line-height:1.7; }
+
+    /* ══════════════════════════════
+       PORTALS
+    ══════════════════════════════ */
+    #portals {
+      position:relative; overflow:hidden;
+      background-image:url('https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center; background-attachment:fixed;
+    }
+    #portals::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(180deg,rgba(6,13,31,0.96) 0%,rgba(6,13,31,0.90) 50%,rgba(6,13,31,0.97) 100%); z-index:0;
+    }
+    #portals .container { position:relative; z-index:1; }
+
+    .portal-card {
+      background:rgba(13,21,37,0.85); border:1px solid var(--border);
+      border-radius:22px; padding:36px 30px; text-align:center; transition:0.4s;
+      position:relative; overflow:hidden; height:100%; backdrop-filter:blur(10px);
+    }
+    .portal-card::before { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; transition:0.4s; opacity:0; }
+    .portal-card:hover { transform:translateY(-8px); box-shadow:0 20px 60px rgba(0,0,0,0.5); border-color:#2d3f5a; }
+    .portal-card:hover::before { opacity:1; }
+    .pc-citizen::before { background:linear-gradient(90deg,var(--red),#ff6b8a); }
+    .pc-officer::before { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+    .pc-admin::before   { background:linear-gradient(90deg,#8b5cf6,#a78bfa); }
+
+    .pc-icon { width:80px; height:80px; border-radius:22px; display:flex; align-items:center; justify-content:center; font-size:32px; margin:0 auto 22px; transition:0.3s; }
+    .portal-card:hover .pc-icon { transform:scale(1.1) rotate(-5deg); }
+    .ic-citizen { background:rgba(233,69,96,0.12); color:var(--red); }
+    .ic-officer { background:rgba(59,130,246,0.12); color:#93c5fd; }
+    .ic-admin   { background:rgba(139,92,246,0.12); color:#c4b5fd; }
+
+    .pc-title { font-size:20px; font-weight:800; margin-bottom:10px; color:white; }
+    .pc-sub   { font-size:14px; color:#8899aa; line-height:1.6; margin-bottom:24px; }
+    .pc-features { list-style:none; padding:0; margin-bottom:28px; text-align:left; }
+    .pc-features li { font-size:13px; color:#8899aa; padding:6px 0; display:flex; align-items:center; gap:8px; border-bottom:1px solid rgba(255,255,255,0.03); }
+    .pc-features li:last-child { border-bottom:none; }
+    .pc-features li i { font-size:11px; flex-shrink:0; }
+    .li-red { color:var(--red); } .li-blue { color:#93c5fd; } .li-purple { color:#c4b5fd; }
+
+    .btn-portal { display:block; padding:13px; border-radius:12px; font-weight:800; font-size:14px; text-decoration:none; transition:0.3s; width:100%; text-align:center; }
+    .btn-p-red    { background:linear-gradient(135deg,var(--red),#c23152);   color:white; box-shadow:0 6px 20px rgba(233,69,96,0.3); }
+    .btn-p-blue   { background:linear-gradient(135deg,#3b82f6,#1d4ed8);     color:white; box-shadow:0 6px 20px rgba(59,130,246,0.3); }
+    .btn-p-purple { background:linear-gradient(135deg,#8b5cf6,#6d28d9);     color:white; box-shadow:0 6px 20px rgba(139,92,246,0.3); }
+    .btn-portal:hover { transform:translateY(-2px); color:white; opacity:0.9; }
+
+    /* ══════════════════════════════
+       HOW IT WORKS
+    ══════════════════════════════ */
+    #how-it-works {
+      position:relative; overflow:hidden;
+      background-image:url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center; background-attachment:fixed;
+    }
+    #how-it-works::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(6,13,31,0.95),rgba(10,20,50,0.93)); z-index:0;
+    }
+    #how-it-works .container { position:relative; z-index:1; }
+
+    .step-card {
+      background:rgba(13,21,37,0.85); border:1px solid var(--border);
+      border-radius:18px; padding:30px 24px; text-align:center;
+      position:relative; transition:0.3s; height:100%; backdrop-filter:blur(10px);
+    }
+    .step-card:hover { transform:translateY(-5px); border-color:#2d3f5a; box-shadow:0 15px 40px rgba(0,0,0,0.4); }
+    .step-num {
+      width:48px; height:48px; border-radius:50%;
+      background:linear-gradient(135deg,var(--red),var(--blue));
+      color:white; font-size:18px; font-weight:900;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+      box-shadow:0 6px 20px rgba(233,69,96,0.35);
+    }
+    .step-icon { font-size:30px; margin-bottom:14px; display:block; }
+    .step-title { font-size:16px; font-weight:800; color:white; margin-bottom:8px; }
+    .step-desc { font-size:13px; color:#8899aa; line-height:1.6; }
+
+    /* ══════════════════════════════
+       FEATURES
+    ══════════════════════════════ */
+    #features { background:var(--dark); }
+
+    .feature-item {
+      display:flex; gap:18px; align-items:flex-start; padding:22px;
+      border-radius:16px; background:var(--card); border:1px solid var(--border);
+      transition:0.3s; margin-bottom:16px;
+    }
+    .feature-item:hover { border-color:#2d3f5a; transform:translateX(5px); }
+    .fi-icon { width:46px; height:46px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .fi-title { font-size:15px; font-weight:700; color:white; margin-bottom:5px; }
+    .fi-desc  { font-size:13px; color:#8899aa; line-height:1.6; }
+
+    .feature-visual { background:var(--card); border:1px solid var(--border); border-radius:22px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,0.4); }
+    .fv-header { background:linear-gradient(135deg,#0f1e3a,#0f3460); padding:14px 18px; display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--border); }
+    .fv-dot { width:11px; height:11px; border-radius:50%; }
+    .fv-body { padding:16px; }
+    .stat-row { display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-radius:10px; margin-bottom:8px; background:#060d1f; border:1px solid var(--border); transition:0.2s; }
+    .stat-row:hover { border-color:#2d3f5a; }
+    .sr-left { font-size:13px; color:#8899aa; font-weight:600; }
+    .sr-right { font-size:15px; font-weight:800; }
+
+    /* ══════════════════════════════
+       NOTICES
+    ══════════════════════════════ */
+    #notices {
+      position:relative; overflow:hidden;
+      background-image:url('https://images.unsplash.com/photo-1588681664899-f142ff2dc9b1?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center; background-attachment:fixed;
+    }
+    #notices::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(180deg,rgba(6,13,31,0.96),rgba(6,13,31,0.92)); z-index:0;
+    }
+    #notices .container { position:relative; z-index:1; }
+
+    .notice-card {
+      background:rgba(13,21,37,0.85); border:1px solid var(--border);
+      border-radius:18px; padding:24px; transition:0.3s; height:100%; backdrop-filter:blur(10px);
+    }
+    .notice-card:hover { border-color:#2d3f5a; transform:translateY(-4px); }
+    .nc-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:14px; }
+    .nc-title { font-size:15px; font-weight:700; color:white; margin-bottom:8px; }
+    .nc-text  { font-size:13px; color:#8899aa; line-height:1.6; }
+    .nc-date  { font-size:11px; color:#334466; margin-top:12px; font-weight:600; }
+
+    /* ══════════════════════════════
+       DEVELOPER CARDS
+    ══════════════════════════════ */
+    .dev-card {
+      background: linear-gradient(160deg, #0d1525, #0f1e3a);
+      border: 1px solid var(--border);
+      border-radius: 26px; padding: 36px 28px;
+      text-align: center; position: relative;
+      overflow: hidden; height: 100%;
+      transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+    .dev-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--accent);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+    }
+    .dev-top-bar { position:absolute; top:0; left:0; right:0; height:3px; }
+    .dev-badge {
+      position:absolute; top:18px; right:18px;
+      padding:3px 10px; border-radius:20px; border:1px solid;
+      font-size:10px; font-weight:700; letter-spacing:0.5px;
+    }
+    .dev-avatar {
+      width:96px; height:96px; border-radius:50%;
+      margin:8px auto 20px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:40px; position:relative;
+    }
+    .dev-online-dot {
+      position:absolute; bottom:4px; right:4px;
+      width:16px; height:16px; border-radius:50%;
+      background:#22c55e; border:3px solid #0d1525;
+      box-shadow:0 0 8px rgba(34,197,94,0.7);
+      animation:blink 2s infinite;
+    }
+    .dev-name { color:white; font-weight:900; font-size:21px; margin-bottom:4px; }
+    .dev-role { font-weight:700; font-size:13px; margin-bottom:6px; }
+    .dev-location { color:#556688; font-size:12px; margin-bottom:16px; font-weight:600; }
+    .dev-bio { color:#8899aa; font-size:13px; line-height:1.75; margin-bottom:20px; text-align:left; }
+    .dev-skills { display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:24px; }
+    .dev-skill { padding:4px 12px; border-radius:20px; border:1px solid; font-size:11px; font-weight:700; }
+    .dev-socials { display:flex; gap:10px; justify-content:center; }
+    .dev-soc-btn {
+      width:40px; height:40px; border-radius:11px;
+      background:rgba(255,255,255,0.04); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      color:#556688; text-decoration:none; font-size:15px; transition:0.25s;
+    }
+    .dev-soc-btn:hover {
+      background:var(--accent); border-color:var(--accent);
+      color:white; transform:translateY(-3px);
+    }
+
+    /* ══════════════════════════════
+       CTA SECTION
+    ══════════════════════════════ */
+    .cta-section {
+      position:relative; overflow:hidden; padding:110px 0; text-align:center;
+      background-image:url('https://images.unsplash.com/photo-1614064641938-3bbee52942c7?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center top; background-attachment:fixed;
+    }
+    .cta-section::before {
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(135deg,rgba(233,69,96,0.88) 0%,rgba(15,52,96,0.92) 60%,rgba(6,13,31,0.95) 100%); z-index:0;
+    }
+    .cta-section .container { position:relative; z-index:1; }
+    .cta-title { font-size:clamp(28px,4vw,52px); font-weight:900; margin-bottom:16px; text-shadow:0 4px 20px rgba(0,0,0,0.4); }
+    .cta-sub   { font-size:17px; color:rgba(255,255,255,0.85); max-width:500px; margin:0 auto 40px; line-height:1.7; }
+    .cta-btns  { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+    .btn-cta-white {
+      background:white; color:var(--blue); padding:15px 32px;
+      border-radius:14px; font-weight:800; font-size:15px;
+      text-decoration:none; display:inline-flex; align-items:center; gap:9px;
+      transition:0.3s; box-shadow:0 8px 30px rgba(0,0,0,0.3);
+    }
+    .btn-cta-white:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(0,0,0,0.4); color:var(--blue); }
+
+    .btn-cta-outline {
+      background:rgba(255,255,255,0.1); border:2px solid rgba(255,255,255,0.5);
+      color:white; padding:15px 32px; border-radius:14px; font-weight:700; font-size:15px;
+      text-decoration:none; display:inline-flex; align-items:center; gap:9px;
+      transition:0.3s; backdrop-filter:blur(10px);
+    }
+    .btn-cta-outline:hover { background:rgba(255,255,255,0.2); border-color:white; color:white; transform:translateY(-2px); }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      position:relative; overflow:hidden; padding:60px 0 24px;
+      background-image:url('https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1920&auto=format&fit=crop&q=80');
+      background-size:cover; background-position:center;
+    }
+    footer::before { content:''; position:absolute; inset:0; background:rgba(4,9,18,0.97); z-index:0; }
+    footer .container { position:relative; z-index:1; }
+
+    .footer-brand { font-size:22px; font-weight:900; color:white; margin-bottom:10px; }
+    .footer-brand span { color:var(--red); }
+    .footer-desc { font-size:13px; color:#556688; line-height:1.7; max-width:280px; }
+    .footer-title { font-size:13px; color:white; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px; }
+    .footer-link { display:block; color:#556688; font-size:13px; text-decoration:none; padding:5px 0; transition:0.2s; font-weight:500; }
+    .footer-link:hover { color:white; padding-left:4px; }
+    .footer-bottom { border-top:1px solid #0d1525; padding-top:22px; margin-top:40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+    .footer-bottom p { color:#334466; font-size:13px; margin:0; }
+    .social-links { display:flex; gap:10px; }
+    .social-link { width:36px; height:36px; border-radius:9px; background:rgba(255,255,255,0.04); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:#556688; font-size:14px; text-decoration:none; transition:0.2s; }
+    .social-link:hover { background:var(--red); border-color:var(--red); color:white; }
+
+    /* ══════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════ */
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeLeft { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+
+    .reveal { opacity:0; transform:translateY(30px); transition:0.7s ease; }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width:576px) {
+      .hero-stats { gap:18px; }
+      .hstat-divider { display:none; }
+      .hero,.stats-section,#portals,#how-it-works,#notices,.cta-section,footer { background-attachment:scroll; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════
+     NAVBAR
+═══════════════════════════════ -->
+<nav class="navbar-cg" id="navbar">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between">
+      <a class="navbar-brand-cg" href="/">
+        <i class="fas fa-shield-alt me-2" style="color:var(--red);"></i>Crime<span>Gate</span>
+      </a>
+      <div class="d-flex align-items-center gap-2 desktop-nav">
+        <a class="nav-link-cg" href="#portals">Portals</a>
+        <a class="nav-link-cg" href="#how-it-works">How It Works</a>
+        <a class="nav-link-cg" href="#features">Features</a>
+        <a class="nav-link-cg" href="#notices">Notices</a>
+        <a class="nav-link-cg" href="#developers">Team</a>
+      </div>
+      <div class="d-flex align-items-center gap-2 desktop-nav">
+        <a class="btn-nav-login"    href="/user/login.html"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+        <a class="btn-nav-register" href="/user/register.html"><i class="fas fa-user-plus me-1"></i>Register</a>
+      </div>
+      <button class="navbar-toggler-cg" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars" id="menuIcon"></i>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#portals"      onclick="toggleMobileMenu()">Portals</a>
+      <a href="#how-it-works" onclick="toggleMobileMenu()">How It Works</a>
+      <a href="#features"     onclick="toggleMobileMenu()">Features</a>
+      <a href="#notices"      onclick="toggleMobileMenu()">Notices</a>
+      <a href="#developers"   onclick="toggleMobileMenu()">Team</a>
+      <hr style="border-color:var(--border);margin:6px 0;"/>
+      <a href="/user/login.html"><i class="fas fa-sign-in-alt me-2"></i>Citizen Login</a>
+      <a href="/user/register.html"><i class="fas fa-user-plus me-2"></i>Register</a>
+      <a href="/officer/officer-login.html"><i class="fas fa-user-shield me-2"></i>Officer Login</a>
+      <a href="/admin/admin-login.html"><i class="fas fa-user-tie me-2"></i>Admin Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════
+     HERO
+═══════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-overlay"></div>
+  <div class="bg-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="container position-relative" style="z-index:1;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="hero-badge"><div class="dot"></div>Maharashtra Police — Digital Portal</div>
+        <h1 class="hero-title">Report Crimes<br/><span class="highlight">Safely</span> & <span class="highlight2">Digitally</span></h1>
+        <p class="hero-sub">CrimeGate is Maharashtra's secure online crime reporting platform. File complaints, track case status, and stay connected with your assigned officer — 24/7 from anywhere.</p>
+        <div class="hero-btns">
+          <a class="btn-hero-primary"    href="/user/register.html"><i class="fas fa-file-alt"></i>File a Complaint</a>
+          <a class="btn-hero-secondary"  href="#how-it-works"><i class="fas fa-play-circle"></i>How It Works</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><span class="hstat-num" id="cntComplaints">8+</span><span class="hstat-lbl">Complaints Filed</span></div>
+          <div class="hstat-divider"></div>
+          <div class="hstat"><span class="hstat-num" id="cntOfficers">5+</span><span class="hstat-lbl">Active Officers</span></div>
+          <div class="hstat-divider"></div>
+          <div class="hstat"><span class="hstat-num" id="cntStations">5</span><span class="hstat-lbl">Stations Online</span></div>
+          <div class="hstat-divider"></div>
+          <div class="hstat"><span class="hstat-num">24/7</span><span class="hstat-lbl">Always Available</span></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-visual">
+          <div class="float-card float-card-1">
+            <div class="fc-num" style="color:#86efac;">✓ Resolved</div>
+            <div class="fc-lbl">Case #A3F2B1</div>
+          </div>
+          <div class="float-card float-card-2">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:blink 1s infinite;"></div>
+              <span class="fc-lbl" style="color:#86efac;">Live Tracking</span>
+            </div>
+            <div class="fc-num">Active</div>
+          </div>
+          <div class="hero-card-main">
+            <div class="portal-preview-head">
+              <h6><i class="fas fa-shield-alt me-2" style="color:var(--red);"></i>CrimeGate Portal</h6>
+              <span class="live-dot">LIVE</span>
+            </div>
+            <div class="mini-complaint">
+              <div class="mini-c-icon" style="background:rgba(239,68,68,0.12);color:#fca5a5;"><i class="fas fa-motorcycle"></i></div>
+              <div style="overflow:hidden;"><div class="mini-c-title">Bike Theft Near Market</div><div class="mini-c-sub"><i class="fas fa-map-marker-alt me-1"></i>Pimpri, Pune</div></div>
+              <span class="mini-pill" style="background:rgba(34,197,94,0.15);color:#86efac;">Closed</span>
+            </div>
+            <div class="mini-complaint">
+              <div class="mini-c-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;"><i class="fas fa-user-secret"></i></div>
+              <div style="overflow:hidden;"><div class="mini-c-title">Chain Snatching Incident</div><div class="mini-c-sub"><i class="fas fa-map-marker-alt me-1"></i>Shivajinagar, Pune</div></div>
+              <span class="mini-pill" style="background:rgba(239,68,68,0.15);color:#fca5a5;">Caught</span>
+            </div>
+            <div class="mini-complaint">
+              <div class="mini-c-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;"><i class="fas fa-laptop"></i></div>
+              <div style="overflow:hidden;"><div class="mini-c-title">Online Fraud / Scam</div><div class="mini-c-sub"><i class="fas fa-map-marker-alt me-1"></i>Deccan, Pune</div></div>
+              <span class="mini-pill" style="background:rgba(59,130,246,0.15);color:#93c5fd;">FIR Filed</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);">
+              <span style="font-size:12px;color:#556688;"><i class="fas fa-clock me-1"></i>Updated just now</span>
+              <a href="/user/login.html" style="font-size:12px;color:var(--red);font-weight:700;text-decoration:none;">View All <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     STATS BAR
+═══════════════════════════════ -->
+<div class="stats-section">
+  <div class="container">
+    <div class="d-flex justify-content-center align-items-center flex-wrap gap-0">
+      <div class="big-stat reveal"><div class="big-stat-num">8+</div><div class="big-stat-lbl">Complaints Filed</div></div>
+      <div class="big-stat-divider d-none d-md-block"></div>
+      <div class="big-stat reveal"><div class="big-stat-num">5+</div><div class="big-stat-lbl">Active Officers</div></div>
+      <div class="big-stat-divider d-none d-md-block"></div>
+      <div class="big-stat reveal"><div class="big-stat-num">5</div><div class="big-stat-lbl">Police Stations</div></div>
+      <div class="big-stat-divider d-none d-md-block"></div>
+      <div class="big-stat reveal"><div class="big-stat-num">24/7</div><div class="big-stat-lbl">Online Access</div></div>
+      <div class="big-stat-divider d-none d-md-block"></div>
+      <div class="big-stat reveal"><div class="big-stat-num">100%</div><div class="big-stat-lbl">Secure & Encrypted</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     PORTALS
+═══════════════════════════════ -->
+<section id="portals">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <div class="section-label"><i class="fas fa-door-open"></i> Access Portals</div>
+      <h2 class="section-title">Choose Your Portal</h2>
+      <p class="section-sub mx-auto">Three dedicated portals — one for citizens, one for officers, and one for HQ administrators.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-4 reveal">
+        <div class="portal-card pc-citizen">
+          <div class="pc-icon ic-citizen"><i class="fas fa-users"></i></div>
+          <div class="pc-title">Citizen Portal</div>
+          <div class="pc-sub">For residents to file complaints, track case status and communicate with assigned officers.</div>
+          <ul class="pc-features">
+            <li><i class="fas fa-check li-red"></i>Register & login securely</li>
+            <li><i class="fas fa-check li-red"></i>File complaint with evidence</li>
+            <li><i class="fas fa-check li-red"></i>Real-time case tracking</li>
+            <li><i class="fas fa-check li-red"></i>View complaint history</li>
+            <li><i class="fas fa-check li-red"></i>Manage your profile</li>
+          </ul>
+          <a href="/user/register.html" class="btn-portal btn-p-red"><i class="fas fa-user-plus me-2"></i>Register as Citizen</a>
+          <a href="/user/login.html" style="display:block;text-align:center;margin-top:10px;color:#556688;font-size:13px;font-weight:600;text-decoration:none;">Already registered? <span style="color:var(--red);">Login →</span></a>
+        </div>
+      </div>
+      <div class="col-lg-4 reveal">
+        <div class="portal-card pc-officer">
+          <div class="pc-icon ic-officer"><i class="fas fa-user-shield"></i></div>
+          <div class="pc-title">Officer Portal</div>
+          <div class="pc-sub">For police officers to manage assigned complaints, update case status and track investigations.</div>
+          <ul class="pc-features">
+            <li><i class="fas fa-check li-blue"></i>Badge ID login</li>
+            <li><i class="fas fa-check li-blue"></i>View assigned complaints</li>
+            <li><i class="fas fa-check li-blue"></i>Update case status</li>
+            <li><i class="fas fa-check li-blue"></i>Add investigation remarks</li>
+            <li><i class="fas fa-check li-blue"></i>View case statistics</li>
+          </ul>
+          <a href="/officer/officer-login.html" class="btn-portal btn-p-blue"><i class="fas fa-id-badge me-2"></i>Officer Login</a>
+          <div style="text-align:center;margin-top:10px;color:#334466;font-size:12px;font-weight:600;">Login with your Badge ID</div>
+        </div>
+      </div>
+      <div class="col-lg-4 reveal">
+        <div class="portal-card pc-admin">
+          <div class="pc-icon ic-admin"><i class="fas fa-user-tie"></i></div>
+          <div class="pc-title">Admin HQ Portal</div>
+          <div class="pc-sub">For headquarters administrators to manage officers, stations and oversee all complaints.</div>
+          <ul class="pc-features">
+            <li><i class="fas fa-check li-purple"></i>Full dashboard overview</li>
+            <li><i class="fas fa-check li-purple"></i>Assign officers to cases</li>
+            <li><i class="fas fa-check li-purple"></i>Manage officers & stations</li>
+            <li><i class="fas fa-check li-purple"></i>View all users</li>
+            <li><i class="fas fa-check li-purple"></i>Analytics & reports</li>
+          </ul>
+          <a href="/admin/admin-login.html" class="btn-portal btn-p-purple"><i class="fas fa-lock me-2"></i>Admin Login</a>
+          <div style="text-align:center;margin-top:10px;color:#334466;font-size:12px;font-weight:600;">Authorized personnel only</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════ -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <div class="section-label"><i class="fas fa-list-ol"></i> Process</div>
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub mx-auto">File a complaint in minutes and track it to resolution — completely online, completely secure.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-6 col-lg-3 reveal">
+        <div class="step-card"><div class="step-num">1</div><span class="step-icon">📝</span><div class="step-title">Register</div><div class="step-desc">Create your secure citizen account with phone number verification</div></div>
+      </div>
+      <div class="col-6 col-lg-3 reveal">
+        <div class="step-card"><div class="step-num">2</div><span class="step-icon">📂</span><div class="step-title">File Complaint</div><div class="step-desc">Submit your complaint with location, description and evidence files</div></div>
+      </div>
+      <div class="col-6 col-lg-3 reveal">
+        <div class="step-card"><div class="step-num">3</div><span class="step-icon">👮</span><div class="step-title">Officer Assigned</div><div class="step-desc">Admin assigns your case to the nearest available police officer</div></div>
+      </div>
+      <div class="col-6 col-lg-3 reveal">
+        <div class="step-card"><div class="step-num">4</div><span class="step-icon">✅</span><div class="step-title">Track & Resolve</div><div class="step-desc">Follow your case status in real-time from FIR to case closure</div></div>
+      </div>
+    </div>
+    <!-- Status Timeline -->
+    <div class="mt-5 reveal">
+      <div style="background:rgba(13,21,37,0.85);border:1px solid var(--border);border-radius:18px;padding:28px;backdrop-filter:blur(10px);">
+        <p style="color:#8899aa;font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:20px;">
+          <i class="fas fa-route me-2" style="color:var(--red);"></i>Case Status Timeline
+        </p>
+        <div class="d-flex align-items-center flex-wrap gap-2">
+          <div style="background:rgba(100,116,139,0.15);border:1px solid #64748b;color:#94a3b8;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;"><i class="fas fa-clock me-1"></i>Submitted</div>
+          <i class="fas fa-long-arrow-alt-right" style="color:#1e2d4a;font-size:18px;"></i>
+          <div style="background:rgba(59,130,246,0.15);border:1px solid #3b82f6;color:#93c5fd;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;"><i class="fas fa-file-alt me-1"></i>FIR Filed</div>
+          <i class="fas fa-long-arrow-alt-right" style="color:#1e2d4a;font-size:18px;"></i>
+          <div style="background:rgba(245,158,11,0.15);border:1px solid #f59e0b;color:#fcd34d;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;"><i class="fas fa-user-secret me-1"></i>Identified</div>
+          <i class="fas fa-long-arrow-alt-right" style="color:#1e2d4a;font-size:18px;"></i>
+          <div style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#fca5a5;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;"><i class="fas fa-user-lock me-1"></i>Caught</div>
+          <i class="fas fa-long-arrow-alt-right" style="color:#1e2d4a;font-size:18px;"></i>
+          <div style="background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#86efac;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap;"><i class="fas fa-check-circle me-1"></i>Case Closed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     FEATURES
+═══════════════════════════════ -->
+<section id="features">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 reveal">
+        <div class="section-label"><i class="fas fa-star"></i> Features</div>
+        <h2 class="section-title">Everything You Need to Stay Safe</h2>
+        <p class="section-sub mb-4">Built with modern security standards to ensure your complaint data is safe and handled efficiently.</p>
+        <div class="feature-item">
+          <div class="fi-icon" style="background:rgba(233,69,96,0.12);color:var(--red);"><i class="fas fa-lock"></i></div>
+          <div><div class="fi-title">End-to-End Secure</div><div class="fi-desc">JWT authentication + bcrypt encryption protects all user data and sessions from unauthorized access.</div></div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;"><i class="fas fa-map-marker-alt"></i></div>
+          <div><div class="fi-title">Location-Based Assignment</div><div class="fi-desc">Complaints are automatically routed to the nearest police station and an available officer is assigned.</div></div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="background:rgba(34,197,94,0.12);color:#86efac;"><i class="fas fa-bell"></i></div>
+          <div><div class="fi-title">Real-Time Status Updates</div><div class="fi-desc">Every time your case status changes, you can instantly view the update with officer remarks.</div></div>
+        </div>
+        <div class="feature-item">
+          <div class="fi-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;"><i class="fas fa-paperclip"></i></div>
+          <div><div class="fi-title">Evidence File Upload</div><div class="fi-desc">Attach photos, videos or documents as evidence directly when filing your complaint.</div></div>
+        </div>
+      </div>
+      <div class="col-lg-6 reveal">
+        <div class="feature-visual">
+          <div class="fv-header">
+            <div class="fv-dot" style="background:#ef4444;"></div>
+            <div class="fv-dot" style="background:#f59e0b;"></div>
+            <div class="fv-dot" style="background:#22c55e;"></div>
+            <span style="color:#8899aa;font-size:13px;font-weight:600;margin-left:8px;">Admin Dashboard — Live Stats</span>
+          </div>
+          <div class="fv-body">
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-folder-open me-2" style="color:var(--red);"></i>Total Complaints</span><span class="sr-right" style="color:#93c5fd;">8</span></div>
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-user-shield me-2" style="color:#93c5fd;"></i>Active Officers</span><span class="sr-right" style="color:#86efac;">5</span></div>
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-building me-2" style="color:#c4b5fd;"></i>Police Stations</span><span class="sr-right" style="color:#c4b5fd;">5</span></div>
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-check-circle me-2" style="color:#86efac;"></i>Cases Resolved</span><span class="sr-right" style="color:#86efac;">3</span></div>
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-clock me-2" style="color:#fcd34d;"></i>Pending Assignment</span><span class="sr-right" style="color:#fcd34d;">2</span></div>
+            <div class="stat-row"><span class="sr-left"><i class="fas fa-percent me-2" style="color:#fdba74;"></i>Resolution Rate</span><span class="sr-right" style="color:#fdba74;">75%</span></div>
+            <div style="margin-top:16px;padding:16px;background:#060d1f;border-radius:12px;border:1px solid var(--border);">
+              <p style="color:#556688;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Status Distribution</p>
+              <div style="display:flex;align-items:flex-end;gap:8px;height:70px;">
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:#94a3b8;border-radius:4px 4px 0 0;height:30%;"></div><span style="font-size:9px;color:#556688;font-weight:700;">SUB</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:#93c5fd;border-radius:4px 4px 0 0;height:50%;"></div><span style="font-size:9px;color:#556688;font-weight:700;">FIR</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:#fcd34d;border-radius:4px 4px 0 0;height:40%;"></div><span style="font-size:9px;color:#556688;font-weight:700;">IDN</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:#fca5a5;border-radius:4px 4px 0 0;height:60%;"></div><span style="font-size:9px;color:#556688;font-weight:700;">CAU</span></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;"><div style="width:100%;background:#86efac;border-radius:4px 4px 0 0;height:80%;"></div><span style="font-size:9px;color:#556688;font-weight:700;">CLO</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     NOTICES
+═══════════════════════════════ -->
+<section id="notices">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <div class="section-label"><i class="fas fa-bullhorn"></i> Important Notices</div>
+      <h2 class="section-title">Portal Updates & Notices</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="notice-card">
+          <div class="nc-icon" style="background:rgba(239,68,68,0.12);color:#fca5a5;"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="nc-title">Cyber Fraud Alert</div>
+          <div class="nc-text">Beware of fake calls claiming to be from banks or police. Never share OTP or account details. Report such calls immediately.</div>
+          <div class="nc-date"><i class="fas fa-calendar me-1"></i>March 2026</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="notice-card">
+          <div class="nc-icon" style="background:rgba(34,197,94,0.12);color:#86efac;"><i class="fas fa-check-circle"></i></div>
+          <div class="nc-title">Portal v1.0 Launched</div>
+          <div class="nc-text">CrimeGate online reporting portal is now officially live for all citizens of Maharashtra. Register to file complaints.</div>
+          <div class="nc-date"><i class="fas fa-calendar me-1"></i>March 2026</div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="notice-card">
+          <div class="nc-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;"><i class="fas fa-info-circle"></i></div>
+          <div class="nc-title">Emergency Numbers</div>
+          <div class="nc-text">For emergencies call <strong style="color:white;">100</strong> (Police), <strong style="color:white;">101</strong> (Fire), <strong style="color:white;">108</strong> (Ambulance). This portal is for non-emergency reporting.</div>
+          <div class="nc-date"><i class="fas fa-calendar me-1"></i>Always Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     DEVELOPERS
+═══════════════════════════════ -->
+<section id="developers" style="padding:90px 0; background:var(--dark); position:relative; overflow:hidden;">
+
+  <!-- Orbs -->
+  <div style="position:absolute;top:-120px;left:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(233,69,96,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:absolute;bottom:-120px;right:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:1px;background:linear-gradient(90deg,transparent,rgba(233,69,96,0.1),rgba(139,92,246,0.1),rgba(59,130,246,0.1),transparent);pointer-events:none;z-index:0;"></div>
+
+  <div class="container position-relative" style="z-index:1;">
+
+    <!-- Header -->
+    <div class="text-center mb-5 reveal">
+      <div class="section-label"><i class="fas fa-users-cog"></i>&nbsp;Development Team</div>
+      <h2 class="section-title">Meet The Developers</h2>
+      <p class="section-sub mx-auto">
+        CrimeGate is a full-stack academic project built with passion by
+        a team of three developers from Maharashtra.
+      </p>
+    </div>
+
+    <!-- Cards -->
+    <div class="row g-4 justify-content-center mb-5">
+
+      <!-- ── Pratik Lolge ── -->
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="dev-card" style="--accent:#e94560;">
+          <div class="dev-top-bar" style="background:linear-gradient(90deg,#e94560,#ff6b8a);"></div>
+          <span class="dev-badge" style="background:rgba(233,69,96,0.12);border-color:rgba(233,69,96,0.25);color:#ff8fa3;">⭐ LEAD DEV</span>
+          <div class="dev-avatar" style="background:linear-gradient(135deg,#e94560,#c23152);box-shadow:0 0 0 5px rgba(233,69,96,0.12),0 0 0 10px rgba(233,69,96,0.05),0 20px 40px rgba(233,69,96,0.3);">
+            👨‍💻<div class="dev-online-dot"></div>
+          </div>
+          <h4 class="dev-name">Pratik Lolge</h4>
+          <p class="dev-role" style="color:#e94560;"><i class="fas fa-code me-1"></i>Full Stack Developer</p>
+          <p class="dev-bio">Backend architect of CrimeGate. Built REST APIs, JWT authentication, MongoDB models, admin dashboard and core server logic using Node.js & Express.</p>
+          <div class="dev-skills">
+            <span class="dev-skill" style="color:#ff8fa3;border-color:rgba(233,69,96,0.2);background:rgba(233,69,96,0.08);"><i class="fab fa-node-js me-1"></i>Node.js</span>
+            <span class="dev-skill" style="color:#93c5fd;border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.08);"><i class="fas fa-server me-1"></i>Express.js</span>
+            <span class="dev-skill" style="color:#c4b5fd;border-color:rgba(139,92,246,0.2);background:rgba(139,92,246,0.08);"><i class="fas fa-database me-1"></i>MongoDB</span>
+            <span class="dev-skill" style="color:#fcd34d;border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);"><i class="fab fa-js me-1"></i>JavaScript</span>
+            <span class="dev-skill" style="color:#86efac;border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.08);"><i class="fas fa-lock me-1"></i>JWT / Auth</span>
+          </div>
+        
+        </div>
+      </div>
+
+      <!-- ── Divya Dasalkar ── -->
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="dev-card" style="--accent:#8b5cf6;">
+          <div class="dev-top-bar" style="background:linear-gradient(90deg,#8b5cf6,#a78bfa);"></div>
+          <span class="dev-badge" style="background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.25);color:#c4b5fd;">🎨 UI / UX DEV</span>
+          <div class="dev-avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);box-shadow:0 0 0 5px rgba(139,92,246,0.12),0 0 0 10px rgba(139,92,246,0.05),0 20px 40px rgba(139,92,246,0.3);">
+            👩‍💻<div class="dev-online-dot"></div>
+          </div>
+          <h4 class="dev-name">Divya Dasalkar</h4>
+          <p class="dev-role" style="color:#c4b5fd;"><i class="fas fa-paint-brush me-1"></i>Frontend Developer & UI/UX</p>
+        
+          <p class="dev-bio">Designed and built all frontend pages — citizen portal, officer dashboard, admin panel and the complete visual UI/UX experience of CrimeGate.</p>
+          <div class="dev-skills">
+            <span class="dev-skill" style="color:#c4b5fd;border-color:rgba(139,92,246,0.2);background:rgba(139,92,246,0.08);"><i class="fab fa-html5 me-1"></i>HTML5 / CSS3</span>
+            <span class="dev-skill" style="color:#fcd34d;border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);"><i class="fab fa-js me-1"></i>JavaScript</span>
+            <span class="dev-skill" style="color:#93c5fd;border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.08);"><i class="fab fa-bootstrap me-1"></i>Bootstrap 5</span>
+            <span class="dev-skill" style="color:#fdba74;border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.08);"><i class="fas fa-palette me-1"></i>UI / UX Design</span>
+            <span class="dev-skill" style="color:#86efac;border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.08);"><i class="fas fa-mobile-alt me-1"></i>Responsive</span>
+          </div>
+      
+        </div>
+      </div>
+
+      <!-- ── Jui Mahajan ── -->
+      <div class="col-md-6 col-lg-4 reveal">
+        <div class="dev-card" style="--accent:#3b82f6;">
+          <div class="dev-top-bar" style="background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div>
+          <span class="dev-badge" style="background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.25);color:#93c5fd;">🗄️ DB & TESTING</span>
+          <div class="dev-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 0 0 5px rgba(59,130,246,0.12),0 0 0 10px rgba(59,130,246,0.05),0 20px 40px rgba(59,130,246,0.3);">
+            👩‍🔬<div class="dev-online-dot"></div>
+          </div>
+          <h4 class="dev-name">Jui Mahajan</h4>
+          <p class="dev-role" style="color:#93c5fd;"><i class="fas fa-database me-1"></i>Database & Testing Engineer</p>
+        
+          <p class="dev-bio">Managed MongoDB schema design, seed data generation, REST API testing and overall quality assurance across all CrimeGate modules.</p>
+          <div class="dev-skills">
+            <span class="dev-skill" style="color:#93c5fd;border-color:rgba(59,130,246,0.2);background:rgba(59,130,246,0.08);"><i class="fas fa-database me-1"></i>MongoDB</span>
+            <span class="dev-skill" style="color:#86efac;border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.08);"><i class="fas fa-vial me-1"></i>API Testing</span>
+            <span class="dev-skill" style="color:#fcd34d;border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.08);"><i class="fab fa-js me-1"></i>JavaScript</span>
+            <span class="dev-skill" style="color:#fca5a5;border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.08);"><i class="fas fa-bug me-1"></i>QA / Debug</span>
+            <span class="dev-skill" style="color:#fdba74;border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.08);"><i class="fas fa-file-alt me-1"></i>Seed Data</span>
+          </div>
+        
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Project Info Bar -->
+    <div class="reveal">
+      <div style="background:linear-gradient(135deg,rgba(233,69,96,0.05),rgba(139,92,246,0.05),rgba(59,130,246,0.05));
+                  border:1px solid var(--border); border-radius:22px; padding:32px 36px;
+                  position:relative; overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),#8b5cf6,#3b82f6);opacity:0.5;"></div>
+        <div class="row align-items-center g-4">
+          <div class="col-lg-5">
+            <h5 style="color:white;font-weight:800;margin-bottom:8px;font-size:18px;">
+              <i class="fas fa-graduation-cap me-2" style="color:var(--red);"></i>Final Year Academic Project — 2026
+            </h5>
+            <p style="color:#8899aa;font-size:14px;margin:0;line-height:1.7;">
+              Built as a full-stack web development capstone project demonstrating real-world police complaint management with modern web technologies.
+            </p>
+          </div>
+          <div class="col-lg-7">
+            <div class="row g-3 text-center">
+              <div class="col-3">
+                <div style="font-size:28px;font-weight:900;color:var(--red);line-height:1;">3</div>
+                <div style="font-size:11px;color:#556688;font-weight:600;text-transform:uppercase;margin-top:4px;">Developers</div>
+              </div>
+              <div class="col-3">
+                <div style="font-size:28px;font-weight:900;color:#c4b5fd;line-height:1;">12</div>
+                <div style="font-size:11px;color:#556688;font-weight:600;text-transform:uppercase;margin-top:4px;">Modules</div>
+              </div>
+              <div class="col-3">
+                <div style="font-size:22px;font-weight:900;color:#93c5fd;line-height:1;">MERN</div>
+                <div style="font-size:11px;color:#556688;font-weight:600;text-transform:uppercase;margin-top:4px;">Stack</div>
+              </div>
+              <div class="col-3">
+                <div style="font-size:28px;font-weight:900;color:#86efac;line-height:1;">2026</div>
+                <div style="font-size:11px;color:#556688;font-weight:600;text-transform:uppercase;margin-top:4px;">Completed</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);">
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#86efac;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fab fa-node-js me-1"></i>Node.js</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#93c5fd;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-server me-1"></i>Express.js</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#c4b5fd;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-database me-1"></i>MongoDB</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fcd34d;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fab fa-js me-1"></i>JavaScript</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fdba74;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fab fa-bootstrap me-1"></i>Bootstrap 5</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#fca5a5;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-lock me-1"></i>JWT + Bcrypt</span>
+              <span style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:#86efac;padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;"><i class="fas fa-upload me-1"></i>Multer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════
+     CTA
+═══════════════════════════════ -->
+<div class="cta-section">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label mx-auto mb-4" style="display:inline-flex;background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:white;">
+        <i class="fas fa-bolt"></i>&nbsp;Take Action
+      </div>
+      <h2 class="cta-title">Ready to Report a Crime?</h2>
+      <p class="cta-sub">Your safety matters. File your complaint online in under 3 minutes — securely and digitally.</p>
+      <div class="cta-btns">
+        <a href="/user/register.html" class="btn-cta-white"><i class="fas fa-file-alt"></i>File Complaint Now</a>
+        <a href="/user/login.html"    class="btn-cta-outline"><i class="fas fa-sign-in-alt"></i>Track Existing Case</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     FOOTER
+═══════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="footer-brand"><i class="fas fa-shield-alt me-2" style="color:var(--red);"></i>Crime<span>Gate</span></div>
+        <p class="footer-desc">Maharashtra's secure digital platform for online crime reporting, case tracking and police management.</p>
+        <div class="social-links mt-3">
+          <a class="social-link" href="#"><i class="fab fa-twitter"></i></a>
+          <a class="social-link" href="#"><i class="fab fa-facebook"></i></a>
+          <a class="social-link" href="#"><i class="fab fa-instagram"></i></a>
+          <a class="social-link" href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="footer-title">Citizen</div>
+        <a class="footer-link" href="/user/register.html">Register</a>
+        <a class="footer-link" href="/user/login.html">Login</a>
+        <a class="footer-link" href="/user/file-complaint.html">File Complaint</a>
+        <a class="footer-link" href="/user/track-status.html">Track Status</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="footer-title">Officers</div>
+        <a class="footer-link" href="/officer/officer-login.html">Officer Login</a>
+        <a class="footer-link" href="/officer/officer-dashboard.html">Dashboard</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="footer-title">Admin</div>
+        <a class="footer-link" href="/admin/admin-login.html">Admin Login</a>
+        <a class="footer-link" href="/admin/admin-dashboard.html">HQ Dashboard</a>
+      </div>
+      <div class="col-6 col-lg-2">
+        <div class="footer-title">Help</div>
+        <a class="footer-link" href="#">Emergency: 100</a>
+        <a class="footer-link" href="#">Fire: 101</a>
+        <a class="footer-link" href="#">Ambulance: 108</a>
+        <a class="footer-link" href="#">Women: 1091</a>
+        <a class="footer-link" href="#">Cyber: 1930</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>
+        © 2026 CrimeGate &nbsp;·&nbsp; Developed by
+        <span style="color:var(--red);font-weight:700;">Pratik Lolge</span>,
+        <span style="color:#c4b5fd;font-weight:700;">Divya Dasalkar</span>
+        <span style="color:#93c5fd;font-weight:700;">Jui Mahajan</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // Mobile menu toggle
+  function toggleMobileMenu() {
+    const m    = document.getElementById('mobileMenu');
+    const icon = document.getElementById('menuIcon');
+    m.classList.toggle('open');
+    icon.className = m.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), i * 80);
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Load live stats from API
+  async function loadStats() {
+    try {
+      const res = await fetch('/api/admin/stats', {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('adminToken') || '') }
+      });
+      if (!res.ok) return;
+      const s = await res.json();
+      if (s.total)          document.getElementById('cntComplaints').textContent = s.total + '+';
+      if (s.activeOfficers) document.getElementById('cntOfficers').textContent   = s.activeOfficers + '+';
+      if (s.stations)       document.getElementById('cntStations').textContent   = s.stations;
+    } catch(e) {}
+  }
+  loadStats();
+</script>
+</body>
+</html>
