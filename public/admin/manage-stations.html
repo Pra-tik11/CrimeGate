@@ -478,3 +478,26 @@
 </script>
 </body>
 </html>
+
+// Force render stations directly
+fetch('/api/admin/stations', {
+  headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+})
+.then(r => r.json())
+.then(data => {
+  const grid = document.getElementById('stationsGrid');
+  console.log('Grid found:', grid);        // Check if element exists
+  console.log('Stations:', data.stations); // Check data
+
+  if (!grid) { console.error('❌ stationsGrid div NOT FOUND in HTML!'); return; }
+
+  grid.innerHTML = data.stations.map(s => `
+    <div style="background:#0d1525;border:1px solid #1e2d4a;border-radius:16px;padding:20px;margin-bottom:12px;">
+      <h3 style="color:white;">${s.name}</h3>
+      <p style="color:#8899aa;">${s.city} — ${s.address}</p>
+      <p style="color:#8899aa;">${s.phone || 'No phone'}</p>
+    </div>
+  `).join('');
+
+  console.log('✅ Stations rendered!');
+});
