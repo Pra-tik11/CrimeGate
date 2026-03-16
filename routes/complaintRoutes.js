@@ -3,25 +3,26 @@ const multer    = require('multer');
 const path      = require('path');
 const auth      = require('../middleware/auth');
 const Complaint = require('../models/Complaint');
-const PoliceStation = require('../models/PoliceStation');
+const Station   = require('../models/Station');   // ✅ FIXED: was PoliceStation
 const Officer   = require('../models/Officer');
 
-// ── File Upload Setup ─────────────────────────────
+// ── File Upload Setup ──
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
   filename:    (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /jpeg|jpg|png|gif|mp4|pdf/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    ext ? cb(null, true) : cb(new Error('Only images, videos and PDFs allowed'));
+    allowed.test(path.extname(file.originalname).toLowerCase())
+      ? cb(null, true)
+      : cb(new Error('Only images, videos and PDFs allowed'));
   }
 });
 
-// ── File Complaint ────────────────────────────────
+// ── File Complaint ──
 router.post('/file', auth, upload.single('evidence'), async (req, res) => {
   try {
     const { title, description, location, latitude, longitude } = req.body;
@@ -30,30 +31,28 @@ router.post('/file', auth, upload.single('evidence'), async (req, res) => {
       return res.status(400).json({ msg: '❌ Title, description and location are required.' });
     }
 
-    // Find nearest police station
     let assignedStation = null;
     let assignedOfficer = null;
 
+    // ✅ FIXED: was PoliceStation, now Station
     if (latitude && longitude) {
-      assignedStation = await PoliceStation.findOne({
+      assignedStation = await Station.findOne({
         location: {
           $nearSphere: {
             $geometry: {
               type: 'Point',
               coordinates: [parseFloat(longitude), parseFloat(latitude)]
             },
-            $maxDistance: 100000 // 100km
+            $maxDistance: 100000
           }
         }
       });
     }
 
-    // If no station found by location, assign first available
     if (!assignedStation) {
-      assignedStation = await PoliceStation.findOne();
+      assignedStation = await Station.findOne(); // ✅ FIXED
     }
 
-    // Randomly assign an officer from that station
     if (assignedStation) {
       const officers = await Officer.find({
         station: assignedStation._id,
@@ -87,38 +86,36 @@ router.post('/file', auth, upload.single('evidence'), async (req, res) => {
     });
 
   } catch (err) {
+    console.error('POST /file error:', err.message);
     res.status(500).json({ msg: '❌ Server error.', error: err.message });
   }
 });
 
-// ── Get My Complaints ─────────────────────────────
+// ── Get My Complaints ── ✅ FIXED: removed populate to avoid crash
 router.get('/my', auth, async (req, res) => {
   try {
     const complaints = await Complaint.find({ userId: req.user.id })
-      .populate('assignedStation', 'name address phone')
-      .populate('assignedOfficer', 'name badgeNumber')
       .sort({ createdAt: -1 });
     res.json(complaints);
   } catch (err) {
+    console.error('GET /my error:', err.message);
     res.status(500).json({ msg: '❌ Server error.', error: err.message });
   }
 });
 
-// ── Track Single Complaint ────────────────────────
+// ── Track Single Complaint ──
 router.get('/track/:id', auth, async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id)
-      .populate('assignedStation', 'name address phone')
-      .populate('assignedOfficer', 'name badgeNumber phone');
-
+    const complaint = await Complaint.findById(req.params.id);
     if (!complaint) return res.status(404).json({ msg: '❌ Complaint not found.' });
     res.json(complaint);
   } catch (err) {
+    console.error('GET /track error:', err.message);
     res.status(500).json({ msg: '❌ Server error.', error: err.message });
   }
 });
 
-// ── Update Status (Officer only) ──────────────────
+// ── Update Status (Officer only) ──
 router.patch('/update-status/:id', auth, async (req, res) => {
   try {
     const { status } = req.body;
@@ -133,6 +130,7 @@ router.patch('/update-status/:id', auth, async (req, res) => {
     );
     res.json({ msg: '✅ Status updated.', complaint });
   } catch (err) {
+    console.error('PATCH /update-status error:', err.message);
     res.status(500).json({ msg: '❌ Server error.', error: err.message });
   }
 });
