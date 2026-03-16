@@ -10,17 +10,17 @@ const ComplaintSchema = new mongoose.Schema({
   description: { type: String, required: true },
   location:    { type: String, required: true },
   coordinates: {
-    latitude:  Number,
-    longitude: Number
+    latitude:  { type: Number, default: null },
+    longitude: { type: Number, default: null }
   },
-  evidenceFile: { type: String, default: null },  // file path
+  evidenceFile: { type: String, default: null },
   assignedStation: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'PoliceStation'
+    ref: 'Station'       // ✅ FIXED: was 'PoliceStation'
   },
   assignedOfficer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Officer'
+    ref: 'Officer'       // ✅ correct
   },
   status: {
     type: String,
