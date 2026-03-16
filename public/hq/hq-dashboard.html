@@ -1,0 +1,7 @@
+const token = localStorage.getItem('hqToken'); // ← Check this key name!
+
+const res = await fetch('/api/hq/complaints', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});

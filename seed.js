@@ -8,23 +8,25 @@ async function seed() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log('✅ Connected to MongoDB');
 
-  const existing = await Admin.findOne({ email: 'admin@crimegate.com' });
-  if (existing) {
-    console.log('⚠️  Admin already exists — skipping');
-    process.exit(0);
-  }
+  const email = 'pratiklolge17gmail.com';   // NEW EMAIL
+  const plainPassword = 'Pratik@123';       // NEW PASSWORD
 
-  const hashed = await bcrypt.hash('Admin@1234', 12);
-  await Admin.create({
-    name:     'CrimeGate Admin',
-    email:    'admin@crimegate.com',
-    password: hashed,
-    role:     'admin'
-  });
+  // If admin with old email exists, update it; otherwise create new
+  const hashed = await bcrypt.hash(plainPassword, 12);
+  const admin = await Admin.findOneAndUpdate(
+    { email },   // match by new email
+    {
+      name: 'CrimeGate Admin',
+      email,
+      password: hashed,
+      role: 'admin'
+    },
+    { upsert: true, new: true }
+  );
 
-  console.log('✅ Admin created!');
-  console.log('   Email:    admin@crimegate.com');
-  console.log('   Password: Admin@1234');
+  console.log('✅ Admin created/updated!');
+  console.log('   Email:    ' + admin.email);
+  console.log('   Password: ' + plainPassword);
   process.exit(0);
 }
 

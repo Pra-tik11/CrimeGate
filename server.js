@@ -37,41 +37,37 @@ const Station   = require('./models/Station');
 const auth = require('./middleware/auth');
 
 // ═══════════════════════════════════════════
-//  API ROUTES
+//  API ROUTES (only once!)
 // ═══════════════════════════════════════════
 app.use('/api/users',      require('./routes/userRoutes'));
 app.use('/api/officers',   require('./routes/officerRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/stations',   require('./routes/stationRoutes'));
-app.use('/api/admin',      require('./routes/adminRoutes'));   // ✅ added
+app.use('/api/admin',      require('./routes/adminRoutes'));
+app.use('/api/hq',         require('./routes/hqRoutes'));     // ✅ HQ routes added
 
 // ═══════════════════════════════════════════
 //  USER PROFILE ROUTES
 // ═══════════════════════════════════════════
-
-// GET /api/users/profile
 app.get('/api/users/profile', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// PUT /api/users/profile
 app.put('/api/users/profile', auth, async (req, res) => {
   try {
     const { name, email, phone, address } = req.body;
-
     if (!name || !email)
       return res.status(400).json({ message: 'Name and email are required' });
 
     const existing = await User.findOne({ email, _id: { $ne: req.user.id } });
     if (existing)
-      return res.status(400).json({ message: 'Email already in use by another account' });
+      return res.status(400).json({ message: 'Email already in use' });
 
     const user = await User.findByIdAndUpdate(
       req.user.id,
@@ -81,19 +77,15 @@ app.put('/api/users/profile', auth, async (req, res) => {
 
     res.json(user);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// PUT /api/users/change-password
 app.put('/api/users/change-password', auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-
     if (!currentPassword || !newPassword)
       return res.status(400).json({ message: 'All fields are required' });
-
     if (newPassword.length < 6)
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
 
@@ -104,31 +96,25 @@ app.put('/api/users/change-password', auth, async (req, res) => {
 
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
-
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// DELETE /api/users/delete
 app.delete('/api/users/delete', auth, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.user.id);
     await Complaint.deleteMany({ user: req.user.id });
     res.json({ message: 'Account deleted successfully' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 // ═══════════════════════════════════════════
-//  COMPLAINT TRACKING ROUTE
+//  COMPLAINT ROUTES
 // ═══════════════════════════════════════════
-
-// GET /api/complaints/track/:id
 app.get('/api/complaints/track/:id', auth, async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
@@ -137,63 +123,56 @@ app.get('/api/complaints/track/:id', auth, async (req, res) => {
 
     if (!complaint)
       return res.status(404).json({ message: 'Complaint not found' });
-
     if (complaint.user.toString() !== req.user.id)
       return res.status(403).json({ message: 'Access denied' });
 
     res.json(complaint);
   } catch (err) {
     if (err.name === 'CastError')
-      return res.status(404).json({ message: 'Invalid Complaint ID format' });
-    console.error(err);
+      return res.status(404).json({ message: 'Invalid Complaint ID' });
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// ═══════════════════════════════════════════
-//  MY COMPLAINTS ROUTE
-// ═══════════════════════════════════════════
-
-// GET /api/complaints/my
 app.get('/api/complaints/my', auth, async (req, res) => {
   try {
     const complaints = await Complaint.find({ user: req.user.id })
       .populate('assignedStation', 'name phone')
       .populate('assignedOfficer', 'name phone')
       .sort({ createdAt: -1 });
-
     res.json(complaints);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
 // ═══════════════════════════════════════════
-//  PAGE ROUTES  (HTML file serving)
+//  PAGE ROUTES (HTML serving)
 // ═══════════════════════════════════════════
-
-// Root → Landing Page
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// ── Citizen Pages ──
-app.get('/user/login',             (req, res) => res.sendFile(path.join(__dirname, 'public/user/login.html')));
-app.get('/user/register',          (req, res) => res.sendFile(path.join(__dirname, 'public/user/register.html')));
-app.get('/user/dashboard',         (req, res) => res.sendFile(path.join(__dirname, 'public/user/dashboard.html')));
-app.get('/user/file-complaint',    (req, res) => res.sendFile(path.join(__dirname, 'public/user/file-complaint.html')));
-app.get('/user/complaint-history', (req, res) => res.sendFile(path.join(__dirname, 'public/user/complaint-history.html')));
-app.get('/user/track-status',      (req, res) => res.sendFile(path.join(__dirname, 'public/user/track-status.html')));
-app.get('/user/profile',           (req, res) => res.sendFile(path.join(__dirname, 'public/user/profile.html')));
+// Citizen
+app.get('/userlogin',             (req, res) => res.sendFile(path.join(__dirname, 'public/user/login.html')));
+app.get('/userregister',          (req, res) => res.sendFile(path.join(__dirname, 'public/user/register.html')));
+app.get('/user/dashboard',        (req, res) => res.sendFile(path.join(__dirname, 'public/user/dashboard.html')));
+app.get('/user/file-complaint',   (req, res) => res.sendFile(path.join(__dirname, 'public/user/file-complaint.html')));
+app.get('/user/complaint-history',(req, res) => res.sendFile(path.join(__dirname, 'public/user/complaint-history.html')));
+app.get('/user/track-status',     (req, res) => res.sendFile(path.join(__dirname, 'public/user/track-status.html')));
+app.get('/user/profile',          (req, res) => res.sendFile(path.join(__dirname, 'public/user/profile.html')));
 
-// ── Officer Pages ──
-app.get('/officer/login',     (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-login.html')));
-app.get('/officer/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-dashboard.html')));
-app.get('/officer/profile',   (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-profile.html')));
+// Officer
+app.get('/officer/officer-login.html', (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-login.html')));
+app.get('/officer/dashboard',          (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-dashboard.html')));
+app.get('/officer/profile',            (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-profile.html')));
 
-// ── Admin Pages ──
-app.get('/admin/login',     (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-login.html')));
-app.get('/admin/dashboard', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-dashboard.html')));
+// Admin
+app.get('/admin/admin-login.html', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-login.html')));
+app.get('/admin/dashboard',        (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-dashboard.html')));
+
+// HQ ✅
+app.get('/hq/hq-login.html',    (req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-login.html')));
+app.get('/hq/hq-dashboard.html',(req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-dashboard.html')));
 
 // ═══════════════════════════════════════════
 //  404 FALLBACK
@@ -208,20 +187,6 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at  → http://localhost:${PORT}`);
-  console.log(`📁 Static files       → /public`);
   console.log(`🗄️  MongoDB URI        → ${process.env.MONGO_URI ? '✅ Set' : '❌ Not Set'}`);
   console.log(`🔑 JWT Secret         → ${process.env.JWT_SECRET ? '✅ Set' : '❌ Not Set'}`);
-  console.log(`👑 Admin Email        → ${process.env.ADMIN_EMAIL || '❌ Not Set'}`);
 });
-// ── Routes ──────────────────────────────────────
-const userRoutes      = require('./routes/userRoutes');
-const complaintRoutes = require('./routes/complaintRoutes');
-const officerRoutes   = require('./routes/officerRoutes');
-const adminRoutes     = require('./routes/adminRoutes');
-const stationRoutes   = require('./routes/stationRoutes');   // ← ADD THIS
-
-app.use('/api/users',      userRoutes);
-app.use('/api/complaints', complaintRoutes);
-app.use('/api/officers',   officerRoutes);
-app.use('/api/admin',      adminRoutes);
-app.use('/api/stations',   stationRoutes);                   // ← ADD THIS
