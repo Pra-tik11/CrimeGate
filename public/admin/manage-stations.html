@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Stations — CrimeGate Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --red: #e94560; --blue: #0f3460; --dark: #060d1f; --card: #0d1525; --border: #1e2d4a; }
+    body { background: var(--dark); color: white; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--dark); } ::-webkit-scrollbar-thumb { background: var(--red); border-radius: 10px; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #080f20; border-right: 1px solid var(--border); display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-brand { padding: 22px 24px; border-bottom: 1px solid var(--border); font-size: 20px; font-weight: 900; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .sidebar-brand span { color: var(--red); }
+    .sidebar-nav { padding: 16px 12px; flex: 1; overflow-y: auto; }
+    .nav-section-label { font-size: 10px; color: #334466; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; padding: 8px 12px 6px; margin-top: 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: #556688; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.2s; margin-bottom: 3px; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: rgba(233,69,96,0.12); color: white; border-left: 3px solid var(--red); }
+    .nav-item i { width: 18px; text-align: center; font-size: 15px; }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+    .admin-profile { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.03); }
+    .admin-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--red), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .admin-name { font-size: 13px; font-weight: 700; color: white; }
+    .admin-role { font-size: 11px; color: #556688; }
+    .main { margin-left: 260px; padding: 30px; min-height: 100vh; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+    .page-title { font-size: 24px; font-weight: 900; }
+    .page-subtitle { font-size: 14px; color: #556688; margin-top: 3px; }
+    .btn-add { background: linear-gradient(135deg, var(--red), #c23152); border: none; color: white; padding: 11px 22px; border-radius: 11px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+    .btn-add:hover { opacity: 0.9; transform: translateY(-2px); color: white; box-shadow: 0 6px 20px rgba(233,69,96,0.4); }
+    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 220px; position: relative; }
+    .search-box input { width: 100%; background: var(--card); border: 1px solid var(--border); color: white; padding: 10px 14px 10px 40px; border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .search-box input:focus { border-color: var(--red); }
+    .search-box i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #556688; }
+    .stats-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .strip-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 14px; }
+    .strip-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .strip-num { font-size: 24px; font-weight: 900; line-height: 1; }
+    .strip-lbl { font-size: 12px; color: #556688; font-weight: 600; margin-top: 3px; }
+    .stations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .station-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 22px; transition: 0.2s; position: relative; overflow: hidden; }
+    .station-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--red), #3b82f6); }
+    .station-card:hover { border-color: rgba(233,69,96,0.3); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .station-icon { width: 48px; height: 48px; border-radius: 14px; background: rgba(233,69,96,0.1); border: 1px solid rgba(233,69,96,0.2); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--red); margin-bottom: 14px; }
+    .station-name { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+    .station-city { font-size: 12px; color: var(--red); font-weight: 700; margin-bottom: 12px; }
+    .station-info { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .station-info-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8899aa; }
+    .station-info-row i { width: 14px; color: #556688; }
+    .station-actions { display: flex; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .btn-edit { flex: 1; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); color: #93c5fd; padding: 8px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-edit:hover { background: rgba(59,130,246,0.2); }
+    .btn-del { flex: 1; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 8px; border-radius: 9px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-del:hover { background: rgba(239,68,68,0.2); }
+    .empty-state { text-align: center; padding: 80px 20px; color: #556688; grid-column: 1/-1; }
+    .empty-state i { font-size: 56px; margin-bottom: 16px; display: block; opacity: 0.3; }
+    .empty-state p { font-size: 16px; font-weight: 600; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: linear-gradient(160deg, #0d1525, #0f1e3a); border: 1px solid var(--border); border-radius: 22px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 80px rgba(0,0,0,0.7); animation: modalIn 0.3s ease; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.94) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; background: linear-gradient(135deg, rgba(233,69,96,0.08), rgba(15,52,96,0.15)); border-radius: 22px 22px 0 0; }
+    .modal-label { font-size: 11px; color: var(--red); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .modal-title { font-size: 22px; font-weight: 900; color: white; margin: 0; }
+    .modal-close { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: #556688; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: 0.2s; }
+    .modal-close:hover { background: rgba(239,68,68,0.15); color: #fca5a5; }
+    .modal-body { padding: 28px; }
+    .modal-footer { padding: 18px 28px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 11px; color: #8899aa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; display: block; }
+    .req { color: var(--red); margin-left: 3px; }
+    .form-control { width: 100%; background: rgba(6,13,31,0.8); border: 1.5px solid var(--border); color: white; padding: 12px 16px; border-radius: 11px; font-size: 14px; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .form-control:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(233,69,96,0.1); }
+    .form-control::placeholder { color: #334466; }
+    .btn-cancel { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: #8899aa; padding: 11px 24px; border-radius: 11px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+    .btn-cancel:hover { color: white; }
+    .btn-submit { background: linear-gradient(135deg, var(--red), #c23152); border: none; color: white; padding: 11px 26px; border-radius: 11px; font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box { background: linear-gradient(160deg, #0d1525, #1a0f2e); border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; padding: 36px; max-width: 420px; width: 100%; text-align: center; }
+    .confirm-icon { width: 64px; height: 64px; border-radius: 50%; background: rgba(239,68,68,0.12); border: 2px solid rgba(239,68,68,0.3); display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fca5a5; margin: 0 auto 20px; }
+    .confirm-title { font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+    .confirm-text  { font-size: 14px; color: #8899aa; line-height: 1.6; margin-bottom: 28px; }
+    .confirm-btns  { display: flex; gap: 12px; justify-content: center; }
+    .btn-confirm-del { background: linear-gradient(135deg, #ef4444, #dc2626); border: none; color: white; padding: 11px 28px; border-radius: 11px; font-weight: 800; font-size: 14px; cursor: pointer; }
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 10px; min-width: 280px; animation: toastIn 0.35s ease; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+    .toast-success { background: rgba(34,197,94,0.15); border: 1px solid #22c55e; color: #86efac; }
+    .toast-error   { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fca5a5; }
+    .loading-spinner { text-align: center; padding: 60px; grid-column: 1/-1; }
+    .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to{ transform: rotate(360deg); } }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main { margin-left: 0; padding: 18px; } .mobile-toggle { display: flex !important; } }
+    .mobile-toggle { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; background: var(--card); border: 1px solid var(--border); color: white; width: 40px; height: 40px; border-radius: 10px; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+  <i class="fas fa-bars"></i>
+</button>
+
+<aside class="sidebar">
+  <a class="sidebar-brand" href="/admin/admin-dashboard.html">
+    <i class="fas fa-shield-alt" style="color:var(--red);"></i>
+    Crime<span>Gate</span>
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="/admin/admin-dashboard.html"><i class="fas fa-chart-pie"></i>Dashboard</a>
+    <a class="nav-item" href="/admin/complaints.html"><i class="fas fa-folder-open"></i>Complaints</a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="/admin/manage-officers.html"><i class="fas fa-user-shield"></i>Officers</a>
+    <a class="nav-item active" href="/admin/manage-stations.html"><i class="fas fa-building"></i>Stations</a>
+    <a class="nav-item" href="/admin/manage-users.html"><i class="fas fa-users"></i>Citizens</a>
+    <div class="nav-section-label">System</div>
+    <a class="nav-item" href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Logout</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-profile">
+      <div class="admin-avatar" id="adminInitial">A</div>
+      <div>
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role">HQ Administrator</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><i class="fas fa-building me-2" style="color:var(--red);"></i>Station Management</h1>
+      <p class="page-subtitle">Add, edit and manage all police stations</p>
+    </div>
+    <button class="btn-add" onclick="openAddModal()">
+      <i class="fas fa-plus"></i> Add New Station
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(233,69,96,0.12);color:var(--red);"><i class="fas fa-building"></i></div>
+      <div><div class="strip-num" id="statTotal">—</div><div class="strip-lbl">Total Stations</div></div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;"><i class="fas fa-user-shield"></i></div>
+      <div><div class="strip-num" id="statOfficers">—</div><div class="strip-lbl">Total Officers</div></div>
+    </div>
+    <div class="strip-card">
+      <div class="strip-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;"><i class="fas fa-folder-open"></i></div>
+      <div><div class="strip-num" id="statComplaints">—</div><div class="strip-lbl">Total Complaints</div></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search stations by name or city..." oninput="filterStations()"/>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="stations-grid" id="stationsGrid">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p style="color:#556688;">Loading stations...</p>
+    </div>
+  </div>
+</main>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="stationModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-label">STATION MANAGEMENT</div>
+        <h3 class="modal-title" id="modalTitle">Add New Station</h3>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="stationForm" onsubmit="submitStation(event)">
+        <input type="hidden" id="stationId"/>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Station Name <span class="req">*</span></label>
+              <input type="text" class="form-control" id="stationName" placeholder="e.g. Pimpri Police Station" required/>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">City <span class="req">*</span></label>
+              <input type="text" class="form-control" id="stationCity" placeholder="e.g. Pimpri-Chinchwad" required/>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Address <span class="req">*</span></label>
+              <input type="text" class="form-control" id="stationAddress" placeholder="e.g. Station Road, Near Bus Stand" required/>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="text" class="form-control" id="stationPhone" placeholder="e.g. 020-27423456"/>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="stationEmail" placeholder="station@police.gov.in"/>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Station In-Charge</label>
+              <input type="text" class="form-control" id="stationInCharge" placeholder="e.g. Inspector Rajesh Kumar"/>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" id="submitBtn" onclick="submitStation(event)">
+        <i class="fas fa-plus"></i> <span id="submitBtnText">Add Station</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="fas fa-trash-alt"></i></div>
+    <h4 class="confirm-title">Delete Station?</h4>
+    <p class="confirm-text" id="confirmText">This will permanently remove the station.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-confirm-del" id="confirmDelBtn">Delete Station</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  const TOKEN = localStorage.getItem('adminToken');
+  const API   = '/api';
+  let allStations = [];
+  let editMode    = false;
+
+  if (!TOKEN) { window.location.href = '/admin/admin-login.html'; }
+
+  window.onload = async () => {
+    setAdminInfo();
+    await loadStats();
+    await loadStations();
+  };
+
+  function setAdminInfo() {
+    try {
+      const p = JSON.parse(atob(TOKEN.split('.')[1]));
+      const name = p.name || 'Admin';
+      document.getElementById('adminName').textContent    = name;
+      document.getElementById('adminInitial').textContent = name.charAt(0).toUpperCase();
+    } catch(e) {}
+  }
+
+  async function loadStats() {
+    try {
+      const res  = await fetch(`${API}/admin/stats`, { headers: authHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('statTotal').textContent      = data.stations     || 0;
+        document.getElementById('statOfficers').textContent   = data.activeOfficers || 0;
+        document.getElementById('statComplaints').textContent = data.total         || 0;
+      }
+    } catch(e) {}
+  }
+
+  /* ── LOAD STATIONS ── */
+  async function loadStations() {
+    try {
+      const res  = await fetch(`${API}/admin/stations`, { headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      allStations = data.stations || [];
+      renderStations(allStations);
+    } catch(err) {
+      document.getElementById('stationsGrid').innerHTML =
+        `<div class="empty-state"><i class="fas fa-exclamation-circle" style="color:var(--red);opacity:1;"></i><p>${err.message}</p></div>`;
+      showToast('Failed to load stations', 'error');
+    }
+  }
+
+  /* ── RENDER GRID ── */
+  function renderStations(stations) {
+    const grid = document.getElementById('stationsGrid');
+
+    if (stations.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><i class="fas fa-building"></i><p>No stations found. Add your first station!</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = stations.map(s => `
+      <div class="station-card">
+        <div class="station-icon"><i class="fas fa-building"></i></div>
+        <div class="station-name">${s.name}</div>
+        <div class="station-city"><i class="fas fa-map-marker-alt me-1"></i>${s.city || '—'}</div>
+        <div class="station-info">
+          <div class="station-info-row"><i class="fas fa-map"></i>${s.address || '—'}</div>
+          <div class="station-info-row"><i class="fas fa-phone"></i>${s.phone || '—'}</div>
+          <div class="station-info-row"><i class="fas fa-envelope"></i>${s.email || '—'}</div>
+          <div class="station-info-row"><i class="fas fa-user-tie"></i>${s.inCharge || '—'}</div>
+        </div>
+        <div class="station-actions">
+          <button class="btn-edit" onclick="openEditModal('${s._id}')"><i class="fas fa-pen"></i> Edit</button>
+          <button class="btn-del"  onclick="openConfirmDelete('${s._id}','${s.name}')"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ── FILTER ── */
+  function filterStations() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allStations.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      (s.city || '').toLowerCase().includes(q)
+    );
+    renderStations(filtered);
+  }
+
+  /* ── ADD MODAL ── */
+  function openAddModal() {
+    editMode = false;
+    document.getElementById('modalTitle').textContent    = 'Add New Station';
+    document.getElementById('submitBtn').innerHTML       = '<i class="fas fa-plus"></i> Add Station';
+    document.getElementById('stationId').value           = '';
+    document.getElementById('stationName').value         = '';
+    document.getElementById('stationCity').value         = '';
+    document.getElementById('stationAddress').value      = '';
+    document.getElementById('stationPhone').value        = '';
+    document.getElementById('stationEmail').value        = '';
+    document.getElementById('stationInCharge').value     = '';
+    document.getElementById('stationModal').classList.add('open');
+  }
+
+  /* ── EDIT MODAL ── */
+  function openEditModal(id) {
+    const s = allStations.find(x => x._id === id);
+    if (!s) return;
+    editMode = true;
+    document.getElementById('modalTitle').textContent    = 'Edit Station';
+    document.getElementById('submitBtn').innerHTML       = '<i class="fas fa-save"></i> Save Changes';
+    document.getElementById('stationId').value           = s._id;
+    document.getElementById('stationName').value         = s.name     || '';
+    document.getElementById('stationCity').value         = s.city     || '';
+    document.getElementById('stationAddress').value      = s.address  || '';
+    document.getElementById('stationPhone').value        = s.phone    || '';
+    document.getElementById('stationEmail').value        = s.email    || '';
+    document.getElementById('stationInCharge').value     = s.inCharge || '';
+    document.getElementById('stationModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('stationModal').classList.remove('open');
+  }
+
+  /* ── SUBMIT ── */
+  async function submitStation(e) {
+    e.preventDefault();
+    const name     = document.getElementById('stationName').value.trim();
+    const city     = document.getElementById('stationCity').value.trim();
+    const address  = document.getElementById('stationAddress').value.trim();
+    const phone    = document.getElementById('stationPhone').value.trim();
+    const email    = document.getElementById('stationEmail').value.trim();
+    const inCharge = document.getElementById('stationInCharge').value.trim();
+    const id       = document.getElementById('stationId').value;
+
+    if (!name)    { showToast('Station name is required', 'error'); return; }
+    if (!city)    { showToast('City is required', 'error'); return; }
+    if (!address) { showToast('Address is required', 'error'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled  = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const url    = editMode ? `${API}/admin/stations/${id}` : `${API}/admin/stations`;
+      const method = editMode ? 'PUT' : 'POST';
+
+      const res  = await fetch(url, {
+        method,
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, city, address, phone, email, inCharge })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      showToast(editMode ? 'Station updated!' : 'Station added successfully!', 'success');
+      closeModal();
+      await loadStations();
+      await loadStats();
+    } catch(err) {
+      showToast(err.message || 'Something went wrong', 'error');
+    } finally {
+      btn.disabled  = false;
+      btn.innerHTML = editMode ? '<i class="fas fa-save"></i> Save Changes' : '<i class="fas fa-plus"></i> Add Station';
+    }
+  }
+
+  /* ── DELETE ── */
+  let deleteTargetId = null;
+
+  function openConfirmDelete(id, name) {
+    deleteTargetId = id;
+    document.getElementById('confirmText').textContent =
+      `Are you sure you want to delete "${name}"? This cannot be undone.`;
+    document.getElementById('confirmOverlay').classList.add('open');
+    document.getElementById('confirmDelBtn').onclick = confirmDelete;
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    deleteTargetId = null;
+  }
+
+  async function confirmDelete() {
+    if (!deleteTargetId) return;
+    const btn = document.getElementById('confirmDelBtn');
+    btn.textContent = 'Deleting...';
+    btn.disabled    = true;
+    try {
+      const res  = await fetch(`${API}/admin/stations/${deleteTargetId}`, { method: 'DELETE', headers: authHeaders() });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      showToast('Station deleted', 'success');
+      closeConfirm();
+      await loadStations();
+    } catch(err) {
+      showToast(err.message || 'Delete failed', 'error');
+    } finally {
+      btn.textContent = 'Delete Station';
+      btn.disabled    = false;
+    }
+  }
+
+  function authHeaders() { return { 'Authorization': `Bearer ${TOKEN}` }; }
+
+  function showToast(msg, type = 'info') {
+    const c    = document.getElementById('toastContainer');
+    const icon = type === 'success' ? 'check-circle' : 'times-circle';
+    const t    = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  function logout() {
+    localStorage.removeItem('adminToken');
+    window.location.href = '/admin/admin-login.html';
+  }
+</script>
+</body>
+</html>

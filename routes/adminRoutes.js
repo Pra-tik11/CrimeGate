@@ -86,7 +86,7 @@ router.get('/complaints', verifyToken, isAdmin, async (req, res) => {
 
     const complaints = await Complaint.find(filter)
       .populate('userId',          'name email phone')
-      .populate('assignedOfficer', 'name badgeNumber')
+      .populate('assignedOfficer', 'name badgeId')
       .populate('assignedStation', 'name address phone')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -105,7 +105,7 @@ router.get('/complaints/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
       .populate('userId',          'name email phone')
-      .populate('assignedOfficer', 'name badgeNumber phone')
+      .populate('assignedOfficer', 'name badgeId phone')
       .populate('assignedStation', 'name address phone');
 
     if (!complaint)
@@ -135,7 +135,7 @@ router.put('/complaints/:id/assign', verifyToken, isAdmin, async (req, res) => {
       { new: true }
     )
       .populate('userId',          'name email')
-      .populate('assignedOfficer', 'name badgeNumber')
+      .populate('assignedOfficer', 'name badgeId')
       .populate('assignedStation', 'name address');
 
     if (!complaint)
@@ -174,7 +174,7 @@ router.get('/officers', verifyToken, isAdmin, async (req, res) => {
   try {
     const officers = await Officer.find()
       .select('-password')
-      .populate('station', 'name')
+      .populate('station', 'name city')
       .sort({ name: 1 });
     res.json({ success: true, officers });
   } catch (err) {
@@ -265,12 +265,43 @@ router.get('/stations', verifyToken, isAdmin, async (req, res) => {
 // ── POST /api/admin/stations ──
 router.post('/stations', verifyToken, isAdmin, async (req, res) => {
   try {
-    const { name, address, phone, city } = req.body;
+    const { name, address, phone, city, email, inCharge } = req.body;
     if (!name)
       return res.status(400).json({ success: false, message: 'Station name required' });
 
-    const station = await Station.create({ name, address, phone, city });
+    const station = await Station.create({ name, address, phone, city, email, inCharge });
     res.status(201).json({ success: true, message: 'Station created', station });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ── PUT /api/admin/stations/:id ──
+router.put('/stations/:id', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const { name, address, phone, city, email, inCharge } = req.body;
+    const station = await Station.findByIdAndUpdate(
+      req.params.id,
+      { name, address, phone, city, email, inCharge },
+      { new: true }
+    );
+    if (!station)
+      return res.status(404).json({ success: false, message: 'Station not found' });
+
+    res.json({ success: true, message: 'Station updated', station });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// ── DELETE /api/admin/stations/:id ──
+router.delete('/stations/:id', verifyToken, isAdmin, async (req, res) => {
+  try {
+    const station = await Station.findByIdAndDelete(req.params.id);
+    if (!station)
+      return res.status(404).json({ success: false, message: 'Station not found' });
+
+    res.json({ success: true, message: 'Station deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -286,4 +317,4 @@ router.get('/users', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-module.exports = router; // ✅ ONLY HERE — at the very end
+module.exports = router;
