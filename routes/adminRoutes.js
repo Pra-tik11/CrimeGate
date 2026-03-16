@@ -1,4 +1,3 @@
-// routes/adminRoutes.js
 const express     = require('express');
 const router      = express.Router();
 const bcrypt      = require('bcryptjs');
@@ -10,9 +9,7 @@ const Station     = require('../models/Station');
 const User        = require('../models/User');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
-// ══════════════════════════════════════════════════
-//  POST  /api/admin/login
-// ══════════════════════════════════════════════════
+// ── POST /api/admin/login ──
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -34,9 +31,7 @@ router.post('/login', async (req, res) => {
     );
 
     res.json({
-      success: true,
-      message: 'Login successful',
-      token,
+      success: true, message: 'Login successful', token,
       admin: { id: admin._id, name: admin.name, email: admin.email }
     });
   } catch (err) {
@@ -44,35 +39,26 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/stats   (used by homepage + dashboard)
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/stats ──
 router.get('/stats', async (req, res) => {
   try {
     const [
-      total,
-      submitted,
-      firFiled,
-      identified,
-      caught,
-      closed,
-      activeOfficers,
-      stations,
-      totalUsers
+      total, submitted, firFiled, identified, caught, closed,
+      activeOfficers, stations, totalUsers
     ] = await Promise.all([
       Complaint.countDocuments(),
-      Complaint.countDocuments({ status: 'submitted'  }),
-      Complaint.countDocuments({ status: 'fir_filed'  }),
-      Complaint.countDocuments({ status: 'identified' }),
-      Complaint.countDocuments({ status: 'caught'     }),
-      Complaint.countDocuments({ status: 'closed'     }),
+      Complaint.countDocuments({ status: 'Submitted'            }),  // ✅ FIXED
+      Complaint.countDocuments({ status: 'FIR Filed'            }),  // ✅ FIXED
+      Complaint.countDocuments({ status: 'Criminal Identified'  }),  // ✅ FIXED
+      Complaint.countDocuments({ status: 'Criminal Caught'      }),  // ✅ FIXED
+      Complaint.countDocuments({ status: 'Case Closed'          }),  // ✅ FIXED
       Officer.countDocuments({ isActive: true }),
       Station.countDocuments(),
       User.countDocuments()
     ]);
 
-    const pending          = submitted + firFiled;
-    const resolutionRate   = total ? Math.round((closed / total) * 100) : 0;
+    const pending        = submitted + firFiled;
+    const resolutionRate = total ? Math.round((closed / total) * 100) : 0;
 
     res.json({
       success: true,
@@ -84,9 +70,7 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/profile
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/profile ──
 router.get('/profile', verifyToken, isAdmin, async (req, res) => {
   try {
     const admin = await Admin.findById(req.user.id).select('-password');
@@ -97,20 +81,18 @@ router.get('/profile', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/complaints  — all complaints
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/complaints ──
 router.get('/complaints', verifyToken, isAdmin, async (req, res) => {
   try {
     const { status, station, page = 1, limit = 20 } = req.query;
     const filter = {};
-    if (status)  filter.status  = status;
-    if (station) filter.station = station;
+    if (status)  filter.status          = status;
+    if (station) filter.assignedStation = station;  // ✅ FIXED
 
     const complaints = await Complaint.find(filter)
-      .populate('user',    'name email phone')
-      .populate('officer', 'name badgeId')
-      .populate('station', 'name city')
+      .populate('userId',          'name email phone')   // ✅ FIXED: was 'user'
+      .populate('assignedOfficer', 'name badgeNumber')   // ✅ FIXED: was 'officer'
+      .populate('assignedStation', 'name address phone') // ✅ FIXED: was 'station'
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
@@ -123,15 +105,13 @@ router.get('/complaints', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/complaints/:id
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/complaints/:id ──
 router.get('/complaints/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.id)
-      .populate('user',    'name email phone address')
-      .populate('officer', 'name badgeId phone station')
-      .populate('station', 'name city address phone');
+      .populate('userId',          'name email phone')    // ✅ FIXED
+      .populate('assignedOfficer', 'name badgeNumber phone') // ✅ FIXED
+      .populate('assignedStation', 'name address phone');    // ✅ FIXED
 
     if (!complaint)
       return res.status(404).json({ success: false, message: 'Complaint not found' });
@@ -142,9 +122,7 @@ router.get('/complaints/:id', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  PUT  /api/admin/complaints/:id/assign  — assign officer
-// ══════════════════════════════════════════════════
+// ── PUT /api/admin/complaints/:id/assign ──
 router.put('/complaints/:id/assign', verifyToken, isAdmin, async (req, res) => {
   try {
     const { officerId } = req.body;
@@ -158,16 +136,16 @@ router.put('/complaints/:id/assign', verifyToken, isAdmin, async (req, res) => {
     const complaint = await Complaint.findByIdAndUpdate(
       req.params.id,
       {
-        officer:  officerId,
-        station:  officer.station,
-        status:   'fir_filed',
+        assignedOfficer: officerId,          // ✅ FIXED: was 'officer'
+        assignedStation: officer.station,    // ✅ FIXED: was 'station'
+        status:    'FIR Filed',              // ✅ FIXED: was 'fir_filed'
         assignedAt: Date.now()
       },
       { new: true }
     )
-      .populate('user',    'name email')
-      .populate('officer', 'name badgeId')
-      .populate('station', 'name city');
+      .populate('userId',          'name email')
+      .populate('assignedOfficer', 'name badgeNumber')
+      .populate('assignedStation', 'name address');
 
     if (!complaint)
       return res.status(404).json({ success: false, message: 'Complaint not found' });
@@ -178,13 +156,12 @@ router.put('/complaints/:id/assign', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  PUT  /api/admin/complaints/:id/status
-// ══════════════════════════════════════════════════
+// ── PUT /api/admin/complaints/:id/status ──
 router.put('/complaints/:id/status', verifyToken, isAdmin, async (req, res) => {
   try {
     const { status, remarks } = req.body;
-    const allowed = ['submitted', 'fir_filed', 'identified', 'caught', 'closed'];
+    // ✅ FIXED: status values now match Complaint.js enum
+    const allowed = ['Submitted','FIR Filed','Criminal Identified','Criminal Caught','Case Closed'];
 
     if (!allowed.includes(status))
       return res.status(400).json({ success: false, message: 'Invalid status value' });
@@ -202,14 +179,12 @@ router.put('/complaints/:id/status', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/officers
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/officers ──
 router.get('/officers', verifyToken, isAdmin, async (req, res) => {
   try {
     const officers = await Officer.find()
       .select('-password')
-      .populate('station', 'name city')
+      .populate('station', 'name')
       .sort({ name: 1 });
     res.json({ success: true, officers });
   } catch (err) {
@@ -217,9 +192,7 @@ router.get('/officers', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  POST  /api/admin/officers  — create officer
-// ══════════════════════════════════════════════════
+// ── POST /api/admin/officers ──
 router.post('/officers', verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, badgeId, email, phone, password, station, rank } = req.body;
@@ -247,9 +220,7 @@ router.post('/officers', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  PUT  /api/admin/officers/:id
-// ══════════════════════════════════════════════════
+// ── PUT /api/admin/officers/:id ──
 router.put('/officers/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const { name, email, phone, station, rank, isActive } = req.body;
@@ -269,14 +240,12 @@ router.put('/officers/:id', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  DELETE  /api/admin/officers/:id
-// ══════════════════════════════════════════════════
+// ── DELETE /api/admin/officers/:id ──
 router.delete('/officers/:id', verifyToken, isAdmin, async (req, res) => {
   try {
     const activeComplaints = await Complaint.countDocuments({
-      officer: req.params.id,
-      status: { $nin: ['closed'] }
+      assignedOfficer: req.params.id,              // ✅ FIXED: was 'officer'
+      status: { $nin: ['Case Closed'] }            // ✅ FIXED: was 'closed'
     });
 
     if (activeComplaints > 0)
@@ -295,9 +264,7 @@ router.delete('/officers/:id', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// ══════════════════════════════════════════════════
-//  GET  /api/admin/users
-// ══════════════════════════════════════════════════
+// ── GET /api/admin/users ──
 router.get('/users', verifyToken, isAdmin, async (req, res) => {
   try {
     const users = await User.find().select('-password').sort({ createdAt: -1 });
