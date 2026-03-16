@@ -37,7 +37,41 @@ const Station   = require('./models/Station');
 const auth = require('./middleware/auth');
 
 // ═══════════════════════════════════════════
-//  API ROUTES
+//  COMPLAINT INLINE ROUTES (MUST be before complaintRoutes)
+// ═══════════════════════════════════════════
+app.get('/api/complaints/my', auth, async (req, res) => {
+  try {
+    const complaints = await Complaint.find({ user: req.user.id })
+      .populate('assignedStation', 'name phone')
+      .populate('assignedOfficer', 'name phone')
+      .sort({ createdAt: -1 });
+    res.json(complaints);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/complaints/track/:id', auth, async (req, res) => {
+  try {
+    const complaint = await Complaint.findById(req.params.id)
+      .populate('assignedStation', 'name phone address')
+      .populate('assignedOfficer', 'name phone badgeNumber');
+
+    if (!complaint)
+      return res.status(404).json({ message: 'Complaint not found' });
+    if (complaint.user.toString() !== req.user.id)
+      return res.status(403).json({ message: 'Access denied' });
+
+    res.json(complaint);
+  } catch (err) {
+    if (err.name === 'CastError')
+      return res.status(404).json({ message: 'Invalid Complaint ID' });
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ═══════════════════════════════════════════
+//  API ROUTES (complaint routes AFTER inline above)
 // ═══════════════════════════════════════════
 app.use('/api/users',      require('./routes/userRoutes'));
 app.use('/api/officers',   require('./routes/officerRoutes'));
@@ -113,43 +147,8 @@ app.delete('/api/users/delete', auth, async (req, res) => {
 });
 
 // ═══════════════════════════════════════════
-//  COMPLAINT ROUTES
-// ═══════════════════════════════════════════
-app.get('/api/complaints/track/:id', auth, async (req, res) => {
-  try {
-    const complaint = await Complaint.findById(req.params.id)
-      .populate('assignedStation', 'name phone address')
-      .populate('assignedOfficer', 'name phone badgeNumber');
-
-    if (!complaint)
-      return res.status(404).json({ message: 'Complaint not found' });
-    if (complaint.user.toString() !== req.user.id)
-      return res.status(403).json({ message: 'Access denied' });
-
-    res.json(complaint);
-  } catch (err) {
-    if (err.name === 'CastError')
-      return res.status(404).json({ message: 'Invalid Complaint ID' });
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-app.get('/api/complaints/my', auth, async (req, res) => {
-  try {
-    const complaints = await Complaint.find({ user: req.user.id })
-      .populate('assignedStation', 'name phone')
-      .populate('assignedOfficer', 'name phone')
-      .sort({ createdAt: -1 });
-    res.json(complaints);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// ═══════════════════════════════════════════
 //  PAGE ROUTES (HTML serving)
 // ═══════════════════════════════════════════
-// Root
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
