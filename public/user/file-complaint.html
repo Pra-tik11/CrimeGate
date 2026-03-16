@@ -6,243 +6,330 @@
   <title>Crime Gate – File Complaint</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/css/style.css"/>
-
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
   <style>
-    body { background: linear-gradient(135deg, #1a1a2e, #16213e); min-height: 100vh; }
-    .navbar { background: linear-gradient(135deg, #0f3460, #e94560); }
-    .card { border: none; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-    .btn-submit {
-      background: linear-gradient(135deg, #0f3460, #e94560);
-      border: none; color: white;
+    * { font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg, #0a0f28, #1a1a2e); min-height: 100vh; }
+
+    /* Navbar */
+    .dash-navbar { background: linear-gradient(135deg, #0f3460, #e94560); padding: 12px 20px; }
+    .navbar-brand { font-size: 20px; font-weight: 800; color: white !important; }
+    .navbar-brand span { color: #ffe0e6; }
+    .navbar-toggler { border-color: rgba(255,255,255,0.4); }
+    .navbar-toggler:focus { box-shadow: none; }
+    .navbar-toggler-icon { filter: invert(1); }
+    @media (max-width: 991px) {
+      .navbar-collapse { background: #0f3460; border-radius: 12px; padding: 14px; margin-top: 10px; }
     }
-    .btn-submit:hover { opacity: 0.9; color: white; }
-    .btn-location {
-      background: #0f3460; border: none; color: white;
+
+    /* Card */
+    .form-card {
+      background: #161b2e;
+      border: 1px solid #2d3a5a;
+      border-radius: 20px;
+      padding: 32px;
     }
-    .btn-location:hover { background: #0a2540; color: white; }
-    .location-box {
-      background: #f0f8ff;
-      border: 1px solid #0f3460;
-      border-radius: 8px;
-      padding: 10px 15px;
+    .form-card h4 { color: white; font-weight: 800; }
+    .form-card .text-muted { color: #8899aa !important; font-size: 14px; }
+
+    /* Form Controls */
+    .form-label { color: #ccd6f6; font-weight: 600; font-size: 14px; }
+    .form-control, .form-select {
+      background: #0d1117;
+      border: 1px solid #2d3a5a;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 14px;
       font-size: 14px;
     }
-    #locationStatus { font-size: 13px; }
+    .form-control::placeholder { color: #556688; }
+    .form-control:focus, .form-select:focus {
+      background: #0d1117;
+      border-color: #e94560;
+      color: white;
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.15);
+    }
+    textarea.form-control { resize: vertical; min-height: 120px; }
+    .form-text { color: #556688; font-size: 12px; }
+
+    /* Location Box */
+    .location-box {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid #22c55e;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 13px;
+      color: #86efac;
+    }
+
+    /* Buttons */
+    .btn-submit {
+      background: linear-gradient(135deg, #0f3460, #e94560);
+      border: none; color: white; border-radius: 12px;
+      font-weight: 700; font-size: 15px; padding: 12px;
+      transition: 0.3s;
+    }
+    .btn-submit:hover { opacity: 0.9; color: white; transform: translateY(-2px); }
+    .btn-submit:disabled { opacity: 0.7; transform: none; }
+
+    .btn-location {
+      background: #0f3460; border: 1px solid #2d3a5a;
+      color: white; border-radius: 10px; font-size: 13px;
+      font-weight: 600; padding: 8px 18px; transition: 0.3s;
+    }
+    .btn-location:hover { background: #1a4a80; color: white; }
+
+    /* Alert */
+    #alertBox { border-radius: 10px; font-size: 14px; }
+
+    /* File Input */
+    .form-control[type="file"] { padding: 8px 14px; }
+    .form-control[type="file"]::file-selector-button {
+      background: #0f3460; color: white;
+      border: none; border-radius: 6px;
+      padding: 4px 12px; margin-right: 10px;
+      font-size: 12px; cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-dark px-4 py-3">
-    <span class="navbar-brand fw-bold fs-5">
-      <i class="fas fa-shield-alt me-2"></i>Crime Gate
-    </span>
-    <div class="d-flex align-items-center gap-3">
-      <span class="text-white" id="welcomeUser"></span>
-      <a href="/user/complaint-history.html" class="btn btn-sm btn-outline-light">
-        <i class="fas fa-list me-1"></i>My Complaints
+  <nav class="navbar navbar-expand-lg dash-navbar">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
       </a>
-      <button class="btn btn-sm btn-outline-light" onclick="logout()">
-        <i class="fas fa-sign-out-alt me-1"></i>Logout
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
       </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav me-auto ms-3">
+          <li class="nav-item">
+            <a class="nav-link text-white fw-bold" href="/user/file-complaint"
+              style="border-bottom: 2px solid white;">
+              <i class="fas fa-plus-circle me-1"></i>File Complaint
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/complaint-history">
+              <i class="fas fa-list me-1"></i>My Complaints
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/track-status">
+              <i class="fas fa-search me-1"></i>Track FIR
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/profile">
+              <i class="fas fa-user me-1"></i>Profile
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+          <span class="text-white fw-bold" id="welcomeUser"></span>
+          <button class="btn btn-sm btn-outline-light" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </button>
+        </div>
+      </div>
     </div>
   </nav>
 
   <div class="container py-4">
     <div class="row justify-content-center">
-      <div class="col-md-7">
+      <div class="col-md-8 col-lg-7">
+        <div class="form-card">
 
-        <div class="card">
-          <div class="card-body p-4">
+          <h4 class="mb-1">
+            <i class="fas fa-file-alt me-2" style="color:#e94560;"></i>File a Complaint
+          </h4>
+          <p class="text-muted mb-4">Fill the form below to register your FIR online</p>
 
-            <h4 class="fw-bold mb-1">
-              <i class="fas fa-file-alt me-2 text-danger"></i>File a Complaint
-            </h4>
-            <p class="text-muted mb-4">Fill the form below to register your FIR online</p>
+          <!-- Alert Box -->
+          <div id="alertBox" class="alert d-none" role="alert"></div>
 
-            <!-- Alert Box -->
-            <div id="alertBox" class="alert d-none" role="alert"></div>
+          <form id="complaintForm" enctype="multipart/form-data" novalidate>
 
-            <form id="complaintForm" enctype="multipart/form-data" novalidate>
+            <!-- Title -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="fas fa-heading me-1" style="color:#e94560;"></i>Complaint Title
+              </label>
+              <input type="text" id="title" class="form-control"
+                placeholder="e.g. Theft, Assault, Harassment..." required/>
+            </div>
 
-              <!-- Title -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">Complaint Title</label>
-                <input type="text" id="title" class="form-control"
-                  placeholder="e.g. Theft, Assault, Harassment..." required/>
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="fas fa-align-left me-1" style="color:#e94560;"></i>Incident Description
+              </label>
+              <textarea id="description" class="form-control" rows="4"
+                placeholder="Describe the incident in detail..." required></textarea>
+            </div>
+
+            <!-- Location -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="fas fa-map-marker-alt me-1" style="color:#e94560;"></i>Incident Location
+              </label>
+              <input type="text" id="location" class="form-control"
+                placeholder="Street, Area, City..." required/>
+            </div>
+
+            <!-- GPS Detection -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="fas fa-location-crosshairs me-1" style="color:#e94560;"></i>GPS Coordinates
+              </label>
+              <div class="d-flex gap-2 mb-2 align-items-center">
+                <button type="button" class="btn btn-location" onclick="detectLocation()">
+                  <i class="fas fa-map-marker-alt me-2"></i>Detect My Location
+                </button>
+                <span id="locationStatus" class="text-muted" style="font-size:13px;"></span>
               </div>
-
-              <!-- Description -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">Incident Description</label>
-                <textarea id="description" class="form-control" rows="4"
-                  placeholder="Describe the incident in detail..." required></textarea>
+              <div id="locationBox" class="location-box d-none">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="locationText"></span>
               </div>
+              <input type="hidden" id="latitude"/>
+              <input type="hidden" id="longitude"/>
+            </div>
 
-              <!-- Location -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">Incident Location</label>
-                <input type="text" id="location" class="form-control"
-                  placeholder="Street, Area, City..." required/>
+            <!-- Evidence Upload -->
+            <div class="mb-4">
+              <label class="form-label">
+                <i class="fas fa-paperclip me-1" style="color:#e94560;"></i>Upload Evidence
+                <span style="color:#556688;font-weight:400;">(Optional)</span>
+              </label>
+              <input type="file" id="evidence" class="form-control"
+                accept="image/*,video/*,.pdf"/>
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>Max 5MB — Images, Videos or PDF allowed
               </div>
+            </div>
 
-              <!-- GPS Detection -->
-              <div class="mb-3">
-                <label class="form-label fw-bold">GPS Coordinates</label>
-                <div class="d-flex gap-2 mb-2">
-                  <button type="button" class="btn btn-location px-4" onclick="detectLocation()">
-                    <i class="fas fa-map-marker-alt me-2"></i>Detect My Location
-                  </button>
-                  <span id="locationStatus" class="text-muted align-self-center"></span>
-                </div>
-                <div id="locationBox" class="location-box d-none">
-                  <i class="fas fa-check-circle text-success me-2"></i>
-                  <span id="locationText"></span>
-                </div>
-                <input type="hidden" id="latitude"/>
-                <input type="hidden" id="longitude"/>
-              </div>
+            <!-- Submit -->
+            <button type="submit" id="submitBtn" class="btn btn-submit w-100 py-2">
+              <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+            </button>
 
-              <!-- Evidence Upload -->
-              <div class="mb-4">
-                <label class="form-label fw-bold">Upload Evidence (Optional)</label>
-                <input type="file" id="evidence" class="form-control"
-                  accept="image/*,video/*,.pdf"/>
-                <div class="form-text">Max 5MB — Images, Videos or PDF allowed</div>
-              </div>
-
-              <!-- Submit -->
-              <button type="submit" id="submitBtn" class="btn btn-submit w-100 py-2 fw-bold">
-                <i class="fas fa-paper-plane me-2"></i>Submit Complaint
-              </button>
-
-            </form>
-
-          </div>
+          </form>
         </div>
-
       </div>
     </div>
   </div>
 
-<script>
-  // ── Auth Check ──────────────────────────────────
-  const token = localStorage.getItem('token');
-  const user  = JSON.parse(localStorage.getItem('user') || '{}');
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ── Auth Check ──
+    const token = localStorage.getItem('token');
+    const user  = JSON.parse(localStorage.getItem('user') || '{}');
 
-  if (!token) window.location.href = '/user/login.html';
-  document.getElementById('welcomeUser').textContent = '👋 ' + (user.name || 'User');
+    // ✅ Fixed redirect
+    if (!token) window.location.href = '/userlogin';
+    document.getElementById('welcomeUser').textContent = '👋 ' + (user.name || 'User');
 
-  // ── Alert Helper ────────────────────────────────
-  function showAlert(type, msg) {
-    const box = document.getElementById('alertBox');
-    box.className = `alert alert-${type}`;
-    box.textContent = msg;
-    box.classList.remove('d-none');
-    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-
-  // ── Detect GPS Location ─────────────────────────
-  function detectLocation() {
-    const status = document.getElementById('locationStatus');
-    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
-
-    if (!navigator.geolocation) {
-      status.textContent = '❌ Geolocation not supported by your browser.';
-      return;
+    // ── Alert Helper ──
+    function showAlert(type, msg) {
+      const box = document.getElementById('alertBox');
+      box.className = `alert alert-${type}`;
+      box.textContent = msg;
+      box.classList.remove('d-none');
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
+    // ── Detect GPS Location ──
+    function detectLocation() {
+      const status = document.getElementById('locationStatus');
+      status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
 
-        document.getElementById('latitude').value  = lat;
-        document.getElementById('longitude').value = lng;
-        document.getElementById('locationText').textContent =
-          `Latitude: ${lat}, Longitude: ${lng}`;
-        document.getElementById('locationBox').classList.remove('d-none');
-
-        // Auto fill location field
-        document.getElementById('location').value =
-          `Lat: ${lat}, Lng: ${lng}`;
-
-        status.innerHTML = '<span class="text-success">✅ Location detected!</span>';
-      },
-      (err) => {
-        status.textContent = '❌ Location access denied. Enter manually.';
+      if (!navigator.geolocation) {
+        status.textContent = '❌ Geolocation not supported.';
+        return;
       }
-    );
-  }
 
-  // ── Submit Form ─────────────────────────────────
-  document.getElementById('complaintForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
 
-    const title       = document.getElementById('title').value.trim();
-    const description = document.getElementById('description').value.trim();
-    const location    = document.getElementById('location').value.trim();
-    const latitude    = document.getElementById('latitude').value;
-    const longitude   = document.getElementById('longitude').value;
-    const evidenceFile= document.getElementById('evidence').files[0];
-
-    if (!title || !description || !location) {
-      showAlert('danger', '❌ Title, description and location are required.');
-      return;
+          document.getElementById('latitude').value  = lat;
+          document.getElementById('longitude').value = lng;
+          document.getElementById('locationText').textContent =
+            `Latitude: ${lat}, Longitude: ${lng}`;
+          document.getElementById('locationBox').classList.remove('d-none');
+          document.getElementById('location').value = `Lat: ${lat}, Lng: ${lng}`;
+          status.innerHTML = '<span style="color:#86efac;">✅ Location detected!</span>';
+        },
+        () => {
+          status.textContent = '❌ Access denied. Enter manually.';
+        }
+      );
     }
 
-    // Loading state
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+    // ── Submit Form ──
+    document.getElementById('complaintForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
 
-    // Use FormData for file upload
-    const formData = new FormData();
-    formData.append('title',       title);
-    formData.append('description', description);
-    formData.append('location',    location);
-    formData.append('latitude',    latitude);
-    formData.append('longitude',   longitude);
-    if (evidenceFile) formData.append('evidence', evidenceFile);
+      const title        = document.getElementById('title').value.trim();
+      const description  = document.getElementById('description').value.trim();
+      const location     = document.getElementById('location').value.trim();
+      const latitude     = document.getElementById('latitude').value;
+      const longitude    = document.getElementById('longitude').value;
+      const evidenceFile = document.getElementById('evidence').files[0];
 
-    try {
-      const res = await fetch('/api/complaints/file', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token },
-        body: formData   // ⚠️ Do NOT set Content-Type manually with FormData
-      });
+      if (!title || !description || !location) {
+        showAlert('danger', '❌ Title, description and location are required.');
+        return;
+      }
 
-      const result = await res.json();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
 
-      if (res.ok) {
-        showAlert('success',
-          `✅ Complaint filed! ID: ${result.complaintId} | Assigned to: ${result.assignedTo}`);
-        document.getElementById('complaintForm').reset();
-        document.getElementById('locationBox').classList.add('d-none');
-        document.getElementById('locationStatus').textContent = '';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Complaint';
-      } else {
-        showAlert('danger', result.msg || '❌ Failed to file complaint.');
+      const formData = new FormData();
+      formData.append('title',       title);
+      formData.append('description', description);
+      formData.append('location',    location);
+      formData.append('latitude',    latitude);
+      formData.append('longitude',   longitude);
+      if (evidenceFile) formData.append('evidence', evidenceFile);
+
+      try {
+        const res    = await fetch('/api/complaints/file', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token },
+          body: formData
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          showAlert('success',
+            `✅ Complaint filed! ID: ${result.complaintId || result._id} | Station: ${result.assignedTo || 'Being assigned'}`);
+          document.getElementById('complaintForm').reset();
+          document.getElementById('locationBox').classList.add('d-none');
+          document.getElementById('locationStatus').textContent = '';
+        } else {
+          showAlert('danger', result.msg || result.message || '❌ Failed to file complaint.');
+        }
+
+      } catch (err) {
+        showAlert('danger', '❌ Cannot connect to server. Please try again.');
+      } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Complaint';
       }
+    });
 
-    } catch (err) {
-      showAlert('danger', '❌ Cannot connect to server.');
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Complaint';
+    // ✅ Fixed logout redirect
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/userlogin';
     }
-  });
-
-  // ── Logout ──────────────────────────────────────
-  function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/user/login.html';
-  }
-</script>
-
+  </script>
 </body>
 </html>
