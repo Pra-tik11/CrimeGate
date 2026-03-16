@@ -1,4 +1,3 @@
-// models/Station.js
 const mongoose = require('mongoose');
 
 const stationSchema = new mongoose.Schema({
@@ -8,6 +7,6 @@ const stationSchema = new mongoose.Schema({
   phone:    { type: String, default: '' },
   email:    { type: String, default: '' },
   inCharge: { type: String, default: '' }
-}, { timestamps: true });   // ← auto adds createdAt + updatedAt
+}, { timestamps: true });
 
 module.exports = mongoose.model('Station', stationSchema);
