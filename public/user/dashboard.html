@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crime Gate – Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg, #0a0f28, #1a1a2e); min-height: 100vh; }
+
+    /* Navbar */
+    .dash-navbar { background: linear-gradient(135deg, #0f3460, #e94560); padding: 12px 20px; }
+    .navbar-brand { font-size: 20px; font-weight: 800; color: white !important; }
+    .navbar-brand span { color: #ffe0e6; }
+    .navbar-toggler { border-color: rgba(255,255,255,0.4); }
+    .navbar-toggler:focus { box-shadow: none; }
+    .navbar-toggler-icon { filter: invert(1); }
+    @media (max-width: 991px) {
+      .navbar-collapse { background: #0f3460; border-radius: 12px; padding: 14px; margin-top: 10px; }
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, #0f3460, #1a1a4e);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid #2d3a5a;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      right: -30px; top: -30px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(233,69,96,0.1);
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      right: 40px; top: 40px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(233,69,96,0.06);
+    }
+    .welcome-title { font-size: 26px; font-weight: 800; color: white; margin: 0; }
+    .welcome-sub   { color: #8899aa; font-size: 14px; margin-top: 6px; }
+    .welcome-time  { color: #e94560; font-size: 13px; font-weight: 600; }
+
+    /* Stat Cards */
+    .stat-card {
+      background: #161b2e;
+      border-radius: 16px;
+      padding: 22px 20px;
+      border: 1px solid #2d3a5a;
+      transition: 0.3s;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      right: -10px; bottom: -10px;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.4); border-color: #e94560; }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 14px;
+    }
+    .stat-num  { font-size: 36px; font-weight: 800; color: white; line-height: 1; }
+    .stat-label{ font-size: 13px; color: #8899aa; margin-top: 4px; }
+
+    /* Quick Action Cards */
+    .action-card {
+      background: #161b2e;
+      border-radius: 16px;
+      border: 1px solid #2d3a5a;
+      padding: 24px 20px;
+      text-align: center;
+      text-decoration: none;
+      transition: 0.3s;
+      display: block;
+      height: 100%;
+    }
+    .action-card:hover {
+      border-color: #e94560;
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(233,69,96,0.15);
+    }
+    .action-icon {
+      width: 60px; height: 60px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin: 0 auto 14px;
+    }
+    .action-title { font-size: 15px; font-weight: 700; color: white; margin-bottom: 6px; }
+    .action-sub   { font-size: 12px; color: #8899aa; }
+
+    /* Recent Complaints */
+    .section-card {
+      background: #161b2e;
+      border-radius: 16px;
+      border: 1px solid #2d3a5a;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid #2d3a5a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-header h6 { color: white; font-weight: 700; margin: 0; font-size: 15px; }
+
+    .complaint-row {
+      padding: 14px 22px;
+      border-bottom: 1px solid #1e2a3a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+    }
+    .complaint-row:last-child { border-bottom: none; }
+    .complaint-row:hover { background: rgba(255,255,255,0.02); }
+    .cr-title  { font-size: 14px; font-weight: 600; color: white; }
+    .cr-meta   { font-size: 12px; color: #556688; margin-top: 2px; }
+
+    /* Status Badges */
+    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .status-submitted  { background: rgba(100,116,139,0.2); color: #94a3b8; border: 1px solid #475569; }
+    .status-fir        { background: rgba(59,130,246,0.2);  color: #93c5fd; border: 1px solid #3b82f6; }
+    .status-identified { background: rgba(245,158,11,0.2);  color: #fcd34d; border: 1px solid #f59e0b; }
+    .status-caught     { background: rgba(239,68,68,0.2);   color: #fca5a5; border: 1px solid #ef4444; }
+    .status-closed     { background: rgba(34,197,94,0.2);   color: #86efac; border: 1px solid #22c55e; }
+
+    /* View All Link */
+    .view-all { color: #e94560; font-size: 13px; font-weight: 600; text-decoration: none; }
+    .view-all:hover { color: #ff6b8a; }
+
+    /* Empty State */
+    .empty-mini { text-align: center; padding: 40px 20px; color: #556688; font-size: 14px; }
+
+    /* Loading */
+    .loading-row { text-align: center; padding: 30px; color: #556688; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg dash-navbar">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-shield-alt me-2"></i>Crime<span>Gate</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav me-auto ms-3">
+          <li class="nav-item">
+            <a class="nav-link text-white fw-bold" href="/user/dashboard"
+              style="border-bottom: 2px solid white;">
+              <i class="fas fa-home me-1"></i>Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/file-complaint">
+              <i class="fas fa-plus-circle me-1"></i>File Complaint
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/complaint-history">
+              <i class="fas fa-list me-1"></i>My Complaints
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/track-status">
+              <i class="fas fa-search me-1"></i>Track FIR
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/user/profile">
+              <i class="fas fa-user me-1"></i>Profile
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-3 mt-2 mt-lg-0">
+          <span class="text-white fw-bold" id="welcomeUser"></span>
+          <button class="btn btn-sm btn-outline-light" onclick="logout()">
+            <i class="fas fa-sign-out-alt me-1"></i>Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+
+    <!-- Welcome Banner -->
+    <div class="welcome-banner mb-4">
+      <div class="position-relative" style="z-index:1;">
+        <p class="welcome-time mb-1">
+          <i class="fas fa-circle me-1" style="font-size:8px;"></i>
+          <span id="currentTime"></span>
+        </p>
+        <h2 class="welcome-title">Welcome back, <span id="userName" style="color:#e94560;">User</span>! 👋</h2>
+        <p class="welcome-sub mb-3">Here's an overview of your complaints and case status.</p>
+        <a href="/user/file-complaint" class="btn text-white fw-bold px-4 py-2"
+          style="background:linear-gradient(135deg,#e94560,#c23152);border:none;border-radius:12px;">
+          <i class="fas fa-plus-circle me-2"></i>File New Complaint
+        </a>
+      </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-num" id="statTotal">—</div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.12);color:#fcd34d;">
+            <i class="fas fa-spinner"></i>
+          </div>
+          <div class="stat-num" id="statActive">—</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(34,197,94,0.12);color:#86efac;">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-num" id="statClosed">—</div>
+          <div class="stat-label">Cases Closed</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(233,69,96,0.12);color:#fca5a5;">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-num" id="statPending">—</div>
+          <div class="stat-label">Pending</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <a href="/user/file-complaint" class="action-card">
+          <div class="action-icon" style="background:rgba(233,69,96,0.12);color:#e94560;">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="action-title">File Complaint</div>
+          <div class="action-sub">Submit a new FIR online</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="/user/complaint-history" class="action-card">
+          <div class="action-icon" style="background:rgba(59,130,246,0.12);color:#93c5fd;">
+            <i class="fas fa-list-alt"></i>
+          </div>
+          <div class="action-title">My Complaints</div>
+          <div class="action-sub">View all filed complaints</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="/user/track-status" class="action-card">
+          <div class="action-icon" style="background:rgba(34,197,94,0.12);color:#86efac;">
+            <i class="fas fa-search-location"></i>
+          </div>
+          <div class="action-title">Track FIR</div>
+          <div class="action-sub">Check case live status</div>
+        </a>
+      </div>
+      <div class="col-6 col-md-3">
+        <a href="/user/profile" class="action-card">
+          <div class="action-icon" style="background:rgba(168,85,247,0.12);color:#c4b5fd;">
+            <i class="fas fa-user-edit"></i>
+          </div>
+          <div class="action-title">My Profile</div>
+          <div class="action-sub">Update your information</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Complaints -->
+    <div class="section-card mb-4">
+      <div class="section-header">
+        <h6><i class="fas fa-clock me-2" style="color:#e94560;"></i>Recent Complaints</h6>
+        <a href="/user/complaint-history" class="view-all">
+          View All <i class="fas fa-arrow-right ms-1"></i>
+        </a>
+      </div>
+      <div id="recentList">
+        <div class="loading-row">
+          <i class="fas fa-spinner fa-spin me-2" style="color:#e94560;"></i>Loading...
+        </div>
+      </div>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="section-card">
+      <div class="section-header">
+        <h6><i class="fas fa-phone-alt me-2" style="color:#e94560;"></i>Emergency Contacts</h6>
+      </div>
+      <div class="row g-0">
+        <div class="col-6 col-md-3">
+          <div class="complaint-row justify-content-center flex-column text-center">
+            <div style="font-size:24px;color:#e94560;"><i class="fas fa-shield-alt"></i></div>
+            <div class="cr-title mt-1">Police</div>
+            <div style="color:#e94560;font-weight:800;font-size:18px;">100</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="complaint-row justify-content-center flex-column text-center">
+            <div style="font-size:24px;color:#fcd34d;"><i class="fas fa-ambulance"></i></div>
+            <div class="cr-title mt-1">Emergency</div>
+            <div style="color:#fcd34d;font-weight:800;font-size:18px;">112</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="complaint-row justify-content-center flex-column text-center">
+            <div style="font-size:24px;color:#93c5fd;"><i class="fas fa-female"></i></div>
+            <div class="cr-title mt-1">Women Helpline</div>
+            <div style="color:#93c5fd;font-weight:800;font-size:18px;">1091</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="complaint-row justify-content-center flex-column text-center">
+            <div style="font-size:24px;color:#86efac;"><i class="fas fa-laptop"></i></div>
+            <div class="cr-title mt-1">Cyber Crime</div>
+            <div style="color:#86efac;font-weight:800;font-size:18px;">1930</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    const user  = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!token) window.location.href = '/userlogin';
+
+    // Set username
+    document.getElementById('userName').textContent    = user.name || 'User';
+    document.getElementById('welcomeUser').textContent = '👋 ' + (user.name || 'User');
+
+    // Live clock
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent =
+        now.toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' })
+        + ' • ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    function getStatusClass(s) {
+      return { 'Submitted':'status-submitted', 'FIR Filed':'status-fir',
+        'Criminal Identified':'status-identified', 'Criminal Caught':'status-caught',
+        'Case Closed':'status-closed' }[s] || 'status-submitted';
+    }
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-IN',
+        { day:'2-digit', month:'short', year:'numeric' });
+    }
+
+    // Load complaints
+    async function loadDashboard() {
+      try {
+        const res  = await fetch('/api/complaints/my', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.status === 401) { logout(); return; }
+        const data = await res.json();
+
+        // Stats
+        document.getElementById('statTotal').textContent   = data.length;
+        document.getElementById('statClosed').textContent  = data.filter(c => c.status === 'Case Closed').length;
+        document.getElementById('statPending').textContent = data.filter(c => c.status === 'Submitted').length;
+        document.getElementById('statActive').textContent  = data.filter(c =>
+          ['FIR Filed','Criminal Identified','Criminal Caught'].includes(c.status)).length;
+
+        // Recent 5 complaints
+        const recent = data.slice(0, 5);
+        const list   = document.getElementById('recentList');
+
+        if (recent.length === 0) {
+          list.innerHTML = `
+            <div class="empty-mini">
+              <i class="fas fa-folder-open fa-2x mb-3" style="color:#2d3a5a;"></i>
+              <p>No complaints filed yet.<br/>
+                <a href="/user/file-complaint" style="color:#e94560;font-weight:700;">
+                  File your first complaint →
+                </a>
+              </p>
+            </div>`;
+          return;
+        }
+
+        list.innerHTML = recent.map(c => `
+          <div class="complaint-row">
+            <div>
+              <div class="cr-title">${c.title}</div>
+              <div class="cr-meta">
+                <i class="fas fa-map-marker-alt me-1" style="color:#e94560;"></i>${c.location}
+                &nbsp;•&nbsp;
+                <i class="fas fa-calendar me-1"></i>${formatDate(c.createdAt)}
+              </div>
+            </div>
+            <span class="status-badge ${getStatusClass(c.status)}">${c.status}</span>
+          </div>`).join('');
+
+      } catch (err) {
+        document.getElementById('recentList').innerHTML = `
+          <div class="empty-mini">
+            <i class="fas fa-exclamation-triangle fa-2x mb-2" style="color:#e94560;"></i>
+            <p>Could not load complaints. Please refresh.</p>
+          </div>`;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/userlogin';
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
