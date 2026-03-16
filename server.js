@@ -37,14 +37,14 @@ const Station   = require('./models/Station');
 const auth = require('./middleware/auth');
 
 // ═══════════════════════════════════════════
-//  API ROUTES (only once!)
+//  API ROUTES
 // ═══════════════════════════════════════════
 app.use('/api/users',      require('./routes/userRoutes'));
 app.use('/api/officers',   require('./routes/officerRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/stations',   require('./routes/stationRoutes'));
 app.use('/api/admin',      require('./routes/adminRoutes'));
-app.use('/api/hq',         require('./routes/hqRoutes'));     // ✅ HQ routes added
+app.use('/api/hq',         require('./routes/hqRoutes'));
 
 // ═══════════════════════════════════════════
 //  USER PROFILE ROUTES
@@ -149,30 +149,35 @@ app.get('/api/complaints/my', auth, async (req, res) => {
 // ═══════════════════════════════════════════
 //  PAGE ROUTES (HTML serving)
 // ═══════════════════════════════════════════
+// Root
 app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// Citizen
-app.get('/userlogin',             (req, res) => res.sendFile(path.join(__dirname, 'public/user/login.html')));
-app.get('/userregister',          (req, res) => res.sendFile(path.join(__dirname, 'public/user/register.html')));
-app.get('/user/dashboard',        (req, res) => res.sendFile(path.join(__dirname, 'public/user/dashboard.html')));
-app.get('/user/file-complaint',   (req, res) => res.sendFile(path.join(__dirname, 'public/user/file-complaint.html')));
-app.get('/user/complaint-history',(req, res) => res.sendFile(path.join(__dirname, 'public/user/complaint-history.html')));
-app.get('/user/track-status',     (req, res) => res.sendFile(path.join(__dirname, 'public/user/track-status.html')));
-app.get('/user/profile',          (req, res) => res.sendFile(path.join(__dirname, 'public/user/profile.html')));
+// ── Citizen ──
+app.get('/userlogin',              (req, res) => res.sendFile(path.join(__dirname, 'public/user/login.html')));
+app.get('/userregister',           (req, res) => res.sendFile(path.join(__dirname, 'public/user/register.html')));
+app.get('/user/dashboard',         (req, res) => res.sendFile(path.join(__dirname, 'public/user/dashboard.html')));
+app.get('/user/file-complaint',    (req, res) => res.sendFile(path.join(__dirname, 'public/user/file-complaint.html')));
+app.get('/user/complaint-history', (req, res) => res.sendFile(path.join(__dirname, 'public/user/complaint-history.html')));
+app.get('/user/track-status',      (req, res) => res.sendFile(path.join(__dirname, 'public/user/track-status.html')));
+app.get('/user/profile',           (req, res) => res.sendFile(path.join(__dirname, 'public/user/profile.html')));
 
-// Officer
+// ── Officer ──
 app.get('/officer/officer-login.html', (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-login.html')));
 app.get('/officer/dashboard',          (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-dashboard.html')));
 app.get('/officer/profile',            (req, res) => res.sendFile(path.join(__dirname, 'public/officer/officer-profile.html')));
 
-// Admin
+// ── Station ──
+app.get('/stationincharge-login.html', (req, res) => res.sendFile(path.join(__dirname, 'public/station/incharge-login.html')));
+app.get('/station/dashboard',          (req, res) => res.sendFile(path.join(__dirname, 'public/station/incharge-dashboard.html')));
+
+// ── Admin ──
 app.get('/admin/admin-login.html', (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-login.html')));
 app.get('/admin/dashboard',        (req, res) => res.sendFile(path.join(__dirname, 'public/admin/admin-dashboard.html')));
 
-// HQ ✅
-app.get('/hq/hq-login.html',    (req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-login.html')));
-app.get('/hq/hq-dashboard.html',(req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-dashboard.html')));
+// ── HQ ──
+app.get('/hq/hq-login.html',     (req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-login.html')));
+app.get('/hq/hq-dashboard.html', (req, res) => res.sendFile(path.join(__dirname, 'public/hq/hq-dashboard.html')));
 
 // ═══════════════════════════════════════════
 //  404 FALLBACK
