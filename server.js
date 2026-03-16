@@ -39,29 +39,28 @@ const auth = require('./middleware/auth');
 // ═══════════════════════════════════════════
 //  COMPLAINT INLINE ROUTES
 // ═══════════════════════════════════════════
+
+// ✅ FIXED — no populate, safe version
 app.get('/api/complaints/my', auth, async (req, res) => {
   try {
+    console.log('🔍 Looking for complaints with userId:', req.user.id);
     const complaints = await Complaint.find({ userId: req.user.id })
-      .populate('assignedStation', 'name phone')
-      .populate('assignedOfficer', 'name phone')
       .sort({ createdAt: -1 });
+    console.log('✅ Found:', complaints.length, 'complaints');
     res.json(complaints);
   } catch (err) {
-    console.error('GET /api/complaints/my error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ /api/complaints/my error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
 app.get('/api/complaints/track/:id', auth, async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.id)
-      .populate('assignedStation', 'name phone address')
-      .populate('assignedOfficer', 'name phone badgeNumber');
+    const complaint = await Complaint.findById(req.params.id);
 
     if (!complaint)
       return res.status(404).json({ message: 'Complaint not found' });
 
-    // ✅ Fixed: use userId consistently
     if (complaint.userId.toString() !== req.user.id)
       return res.status(403).json({ message: 'Access denied' });
 
@@ -69,8 +68,8 @@ app.get('/api/complaints/track/:id', auth, async (req, res) => {
   } catch (err) {
     if (err.name === 'CastError')
       return res.status(404).json({ message: 'Invalid Complaint ID' });
-    console.error('GET /api/complaints/track error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('GET /api/complaints/track error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -93,8 +92,8 @@ app.get('/api/users/profile', auth, async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);
   } catch (err) {
-    console.error('GET /api/users/profile error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('GET /api/users/profile error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -116,8 +115,8 @@ app.put('/api/users/profile', auth, async (req, res) => {
 
     res.json(user);
   } catch (err) {
-    console.error('PUT /api/users/profile error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('PUT /api/users/profile error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -138,20 +137,19 @@ app.put('/api/users/change-password', auth, async (req, res) => {
     await user.save();
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
-    console.error('PUT /api/users/change-password error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('PUT /api/users/change-password error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
 app.delete('/api/users/delete', auth, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.user.id);
-    // ✅ Fixed: was 'user', now 'userId' to match Complaint model
     await Complaint.deleteMany({ userId: req.user.id });
     res.json({ message: 'Account deleted successfully' });
   } catch (err) {
-    console.error('DELETE /api/users/delete error:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('DELETE /api/users/delete error:', err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -195,7 +193,7 @@ app.use((req, res) => {
 });
 
 // ═══════════════════════════════════════════
-//  START SERVER
+//  START SERVER  ← NOTHING AFTER THIS!
 // ═══════════════════════════════════════════
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
